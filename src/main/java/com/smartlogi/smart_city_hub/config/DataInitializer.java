@@ -81,7 +81,6 @@ public class DataInitializer implements CommandLineRunner {
     }
     
     private void initializeDefaultUsers() {
-        // Create admin user if not exists
         if (!userRepository.existsByEmail("admin@smartcityhub.com")) {
             User admin = User.builder()
                     .email("admin@smartcityhub.com")
