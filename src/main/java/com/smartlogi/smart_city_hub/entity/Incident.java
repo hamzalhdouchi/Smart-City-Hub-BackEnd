@@ -11,9 +11,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Incident entity representing urban issues reported by citizens.
- */
 @Entity
 @Table(name = "incidents")
 @Getter
@@ -24,8 +21,8 @@ import java.util.List;
 public class Incident {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     @Column(unique = true)
     private String incidentNumber;
