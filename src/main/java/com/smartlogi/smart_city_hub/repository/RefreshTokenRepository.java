@@ -9,15 +9,15 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
-    
+public interface RefreshTokenRepository extends JpaRepository<RefreshToken, String> {
+
     Optional<RefreshToken> findByToken(String token);
-    
+
     Optional<RefreshToken> findByTokenAndRevokedFalse(String token);
-    
+
     @Modifying
     @Query("UPDATE RefreshToken rt SET rt.revoked = true WHERE rt.user.id = :userId")
-    void revokeAllByUserId(Long userId);
-    
-    void deleteByUserId(Long userId);
+    void revokeAllByUserId(String userId);
+
+    void deleteByUserId(String userId);
 }
