@@ -5,9 +5,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-/**
- * RefreshToken entity for JWT refresh token management.
- */
 @Entity
 @Table(name = "refresh_tokens")
 @Getter
@@ -18,8 +15,8 @@ import java.time.LocalDateTime;
 public class RefreshToken {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     @Column(nullable = false, unique = true)
     private String token;
