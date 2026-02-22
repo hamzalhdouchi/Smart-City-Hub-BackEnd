@@ -5,10 +5,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-/**
- * IncidentPhoto entity for incident images (renamed from Photo to match
- * diagram).
- */
 @Entity
 @Table(name = "incident_photos")
 @Getter
@@ -19,8 +15,8 @@ import java.time.LocalDateTime;
 public class IncidentPhoto {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "incident_id", nullable = false)
@@ -32,7 +28,7 @@ public class IncidentPhoto {
     @Column(nullable = false)
     private String filePath;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 2048)
     private String fileUrl;
 
     private Long fileSize;
