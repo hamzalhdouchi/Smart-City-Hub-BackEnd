@@ -6,9 +6,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-/**
- * IncidentStatusHistory entity to track status changes of incidents.
- */
 @Entity
 @Table(name = "incident_status_history")
 @Getter
@@ -19,8 +16,8 @@ import java.time.LocalDateTime;
 public class IncidentStatusHistory {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "incident_id", nullable = false)
