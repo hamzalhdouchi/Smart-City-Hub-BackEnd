@@ -9,11 +9,11 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface CommentRepository extends JpaRepository<Comment, Long> {
-    
-    List<Comment> findByIncidentIdOrderByCreatedAtDesc(Long incidentId);
-    
-    Page<Comment> findByIncidentId(Long incidentId, Pageable pageable);
-    
-    void deleteByIncidentId(Long incidentId);
+public interface CommentRepository extends JpaRepository<Comment, String> {
+
+    List<Comment> findByIncidentIdOrderByCreatedAtDesc(String incidentId);
+
+    Page<Comment> findByIncidentId(String incidentId, Pageable pageable);
+
+    void deleteByIncidentId(String incidentId);
 }
