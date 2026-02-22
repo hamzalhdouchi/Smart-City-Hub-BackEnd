@@ -12,10 +12,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PhotoResponse {
-    
-    private Long id;
+
+    private String id;
+    private String fileName;
+    private String filePath;
     private String url;
-    private Long uploadedById;
+    private Long fileSize;
+    private String uploadedById;
     private String uploadedByName;
     private LocalDateTime createdAt;
 }
