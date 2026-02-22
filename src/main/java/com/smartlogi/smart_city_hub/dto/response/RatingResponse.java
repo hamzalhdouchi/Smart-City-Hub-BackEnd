@@ -12,11 +12,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RatingResponse {
-    
-    private Long id;
+
+    private String id;
     private Integer stars;
     private String feedback;
-    private Long userId;
+    private String userId;
     private String userName;
     private LocalDateTime createdAt;
 }
