@@ -6,6 +6,7 @@ import com.smartlogi.smart_city_hub.dto.request.UpdateStatusRequest;
 import com.smartlogi.smart_city_hub.dto.response.IncidentResponse;
 import com.smartlogi.smart_city_hub.entity.Category;
 import com.smartlogi.smart_city_hub.entity.Incident;
+import com.smartlogi.smart_city_hub.entity.IncidentPhoto;
 import com.smartlogi.smart_city_hub.entity.User;
 import com.smartlogi.smart_city_hub.entity.enums.IncidentStatus;
 import com.smartlogi.smart_city_hub.entity.enums.Priority;
@@ -15,6 +16,7 @@ import com.smartlogi.smart_city_hub.exception.ForbiddenException;
 import com.smartlogi.smart_city_hub.exception.ResourceNotFoundException;
 import com.smartlogi.smart_city_hub.mapper.IncidentMapper;
 import com.smartlogi.smart_city_hub.repository.CategoryRepository;
+import com.smartlogi.smart_city_hub.repository.IncidentPhotoRepository;
 import com.smartlogi.smart_city_hub.repository.IncidentRepository;
 import com.smartlogi.smart_city_hub.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +25,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -34,15 +38,17 @@ public class IncidentService {
     private final IncidentRepository incidentRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
+    private final IncidentPhotoRepository photoRepository;
     private final UserService userService;
+    private final MinioService minioService;
     private final IncidentMapper incidentMapper;
 
     @Transactional
-    public IncidentResponse createIncident(CreateIncidentRequest request) {
+    public IncidentResponse createIncident(CreateIncidentRequest request, List<MultipartFile> photos) {
         User reporter = userService.getCurrentUser();
 
         Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Category", request.getCategoryId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "id", request.getCategoryId()));
 
         Incident incident = Incident.builder()
                 .title(request.getTitle())
@@ -59,29 +65,60 @@ public class IncidentService {
         incident = incidentRepository.save(incident);
         log.info("Incident created: {} by user: {}", incident.getId(), reporter.getEmail());
 
+        // Upload photos if provided
+        if (photos != null && !photos.isEmpty()) {
+            for (MultipartFile photo : photos) {
+                if (photo != null && !photo.isEmpty()) {
+                    try {
+                        String folder = "incidents/" + incident.getId();
+                        String objectName = minioService.uploadFile(photo, folder);
+                        String fileUrl = minioService.getPresignedUrl(objectName);
+
+                        IncidentPhoto incidentPhoto = IncidentPhoto.builder()
+                                .incident(incident)
+                                .fileName(photo.getOriginalFilename())
+                                .filePath(objectName)
+                                .fileUrl(fileUrl)
+                                .fileSize(photo.getSize())
+                                .uploadedBy(reporter)
+                                .build();
+
+                        photoRepository.save(incidentPhoto);
+                        log.info("Photo uploaded for incident {}: {}", incident.getId(), objectName);
+                    } catch (Exception e) {
+                        log.error("Failed to upload photo: {}", e.getMessage());
+                    }
+                }
+            }
+        }
+
         return incidentMapper.toResponse(incident);
     }
 
-    public IncidentResponse getIncidentById(Long id) {
-        Incident incident = incidentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Incident", id));
+    @Transactional(readOnly = true)
+    public IncidentResponse getIncidentById(String id) {
+        Incident incident = incidentRepository.findByIdWithRelations(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Incident", "id", id));
         return incidentMapper.toResponse(incident);
     }
 
+    @Transactional(readOnly = true)
     public Page<IncidentResponse> getAllIncidents(
             IncidentStatus status,
-            Long categoryId,
+            String categoryId,
             Pageable pageable) {
         return incidentRepository.findWithFilters(status, categoryId, null, pageable)
                 .map(incidentMapper::toResponse);
     }
 
+    @Transactional(readOnly = true)
     public Page<IncidentResponse> getMyIncidents(Pageable pageable) {
         User currentUser = userService.getCurrentUser();
         return incidentRepository.findByReporterId(currentUser.getId(), pageable)
                 .map(incidentMapper::toResponse);
     }
 
+    @Transactional(readOnly = true)
     public Page<IncidentResponse> getAssignedIncidents(Pageable pageable) {
         User currentUser = userService.getCurrentUser();
         return incidentRepository.findByAssignedAgentId(currentUser.getId(), pageable)
@@ -89,18 +126,16 @@ public class IncidentService {
     }
 
     @Transactional
-    public IncidentResponse updateStatus(Long id, UpdateStatusRequest request) {
+    public IncidentResponse updateStatus(String id, UpdateStatusRequest request) {
         Incident incident = incidentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Incident", id));
+                .orElseThrow(() -> new ResourceNotFoundException("Incident", "id", id));
 
         User currentUser = userService.getCurrentUser();
 
-        // Validate status transition based on role
         validateStatusTransition(incident, request.getStatus(), currentUser);
 
         incident.setStatus(request.getStatus());
 
-        // Set resolvedAt if status is RESOLVED or VALIDATED
         if (request.getStatus() == IncidentStatus.RESOLVED || request.getStatus() == IncidentStatus.VALIDATED) {
             incident.setResolvedAt(LocalDateTime.now());
         }
@@ -112,12 +147,12 @@ public class IncidentService {
     }
 
     @Transactional
-    public IncidentResponse assignAgent(Long id, AssignAgentRequest request) {
+    public IncidentResponse assignAgent(String id, AssignAgentRequest request) {
         Incident incident = incidentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Incident", id));
+                .orElseThrow(() -> new ResourceNotFoundException("Incident", "id", id));
 
         User agent = userRepository.findById(request.getAgentId())
-                .orElseThrow(() -> new ResourceNotFoundException("User", request.getAgentId()));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", request.getAgentId()));
 
         if (agent.getRole() != Role.ROLE_AGENT) {
             throw new BadRequestException("User is not an agent");
@@ -125,7 +160,6 @@ public class IncidentService {
 
         incident.setAssignedAgent(agent);
 
-        // If still in NEW status, move to ASSIGNED
         if (incident.getStatus() == IncidentStatus.NEW) {
             incident.setStatus(IncidentStatus.ASSIGNED);
         }
@@ -141,7 +175,6 @@ public class IncidentService {
     private void validateStatusTransition(Incident incident, IncidentStatus newStatus, User user) {
         IncidentStatus currentStatus = incident.getStatus();
 
-        // Agents can only change status of incidents assigned to them
         if (user.getRole() == Role.ROLE_AGENT) {
             if (incident.getAssignedAgent() == null ||
                     !incident.getAssignedAgent().getId().equals(user.getId())) {
@@ -149,7 +182,6 @@ public class IncidentService {
             }
         }
 
-        // Basic status flow validation
         switch (currentStatus) {
             case NEW:
                 if (newStatus != IncidentStatus.ASSIGNED && newStatus != IncidentStatus.REJECTED) {
