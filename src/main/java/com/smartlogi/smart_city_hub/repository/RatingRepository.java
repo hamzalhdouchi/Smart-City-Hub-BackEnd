@@ -8,15 +8,15 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface RatingRepository extends JpaRepository<Rating, Long> {
-    
-    Optional<Rating> findByIncidentId(Long incidentId);
-    
-    boolean existsByIncidentId(Long incidentId);
-    
+public interface RatingRepository extends JpaRepository<Rating, String> {
+
+    Optional<Rating> findByIncidentId(String incidentId);
+
+    boolean existsByIncidentId(String incidentId);
+
     @Query("SELECT AVG(r.stars) FROM Rating r")
     Double getAverageRating();
-    
+
     @Query("SELECT AVG(r.stars) FROM Rating r WHERE r.incident.assignedAgent.id = :agentId")
-    Double getAverageRatingByAgent(Long agentId);
+    Double getAverageRatingByAgent(String agentId);
 }
