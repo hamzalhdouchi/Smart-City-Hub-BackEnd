@@ -19,71 +19,81 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CategoryService {
-    
+
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
-    
+
     public List<CategoryResponse> getAllCategories() {
         return categoryRepository.findAll().stream()
                 .map(categoryMapper::toResponse)
                 .collect(Collectors.toList());
     }
-    
+
     public List<CategoryResponse> getActiveCategories() {
         return categoryRepository.findByActiveTrue().stream()
                 .map(categoryMapper::toResponse)
                 .collect(Collectors.toList());
     }
-    
-    public CategoryResponse getCategoryById(Long id) {
+
+    public CategoryResponse getCategoryById(String id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Category", id));
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
         return categoryMapper.toResponse(category);
     }
-    
+
     @Transactional
     public CategoryResponse createCategory(CreateCategoryRequest request) {
         if (categoryRepository.existsByName(request.getName())) {
             throw new BadRequestException("Category with this name already exists");
         }
-        
+
         Category category = categoryMapper.toEntity(request);
         category = categoryRepository.save(category);
-        
+
         log.info("Category created: {}", category.getName());
         return categoryMapper.toResponse(category);
     }
-    
+
     @Transactional
-    public CategoryResponse updateCategory(Long id, CreateCategoryRequest request) {
+    public CategoryResponse updateCategory(String id, CreateCategoryRequest request) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Category", id));
-        
-        // Check for duplicate name (excluding current category)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
+
         categoryRepository.findByName(request.getName())
                 .ifPresent(existing -> {
                     if (!existing.getId().equals(id)) {
                         throw new BadRequestException("Category with this name already exists");
                     }
                 });
-        
+
         category.setName(request.getName());
         category.setDescription(request.getDescription());
         category.setIcon(request.getIcon());
-        
+
         category = categoryRepository.save(category);
         log.info("Category updated: {}", category.getName());
-        
+
         return categoryMapper.toResponse(category);
     }
-    
+
     @Transactional
-    public void deleteCategory(Long id) {
+    public void deleteCategory(String id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Category", id));
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
 
         category.setActive(false);
         categoryRepository.save(category);
         log.info("Category deactivated: {}", category.getName());
+    }
+
+    @Transactional
+    public CategoryResponse reactivateCategory(String id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
+
+        category.setActive(true);
+        category = categoryRepository.save(category);
+        log.info("Category reactivated: {}", category.getName());
+        return categoryMapper.toResponse(category);
     }
 }
