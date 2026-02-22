@@ -5,9 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Request DTO for updating a category.
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -20,5 +17,5 @@ public class UpdateCategoryRequest {
 
     private Boolean active;
 
-    private Long departmentId;
+    private String departmentId;
 }
