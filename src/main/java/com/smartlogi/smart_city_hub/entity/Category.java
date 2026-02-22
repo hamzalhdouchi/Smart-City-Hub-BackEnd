@@ -5,9 +5,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-/**
- * Category entity for classifying incidents.
- */
 @Entity
 @Table(name = "categories")
 @Getter
@@ -18,8 +15,8 @@ import java.time.LocalDateTime;
 public class Category {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     @Column(nullable = false, unique = true)
     private String name;
