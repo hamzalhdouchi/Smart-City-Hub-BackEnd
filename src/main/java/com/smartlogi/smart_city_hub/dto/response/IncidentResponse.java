@@ -15,8 +15,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class IncidentResponse {
-    
-    private Long id;
+
+    private String id;
     private String title;
     private String description;
     private Double latitude;
