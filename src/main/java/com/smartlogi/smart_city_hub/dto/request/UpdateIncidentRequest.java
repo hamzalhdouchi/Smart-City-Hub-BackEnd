@@ -7,9 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Request DTO for updating an incident.
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -28,7 +25,7 @@ public class UpdateIncidentRequest {
 
     private String district;
 
-    private Long categoryId;
+    private String categoryId;
 
     private UrgencyLevel urgencyLevel;
 
