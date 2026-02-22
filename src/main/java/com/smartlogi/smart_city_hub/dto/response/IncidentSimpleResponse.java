@@ -9,9 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-/**
- * Simple response DTO for incident (minimal info for lists).
- */
+
 @Data
 @Builder
 @NoArgsConstructor
