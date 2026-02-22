@@ -1,5 +1,6 @@
 package com.smartlogi.smart_city_hub.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.smartlogi.smart_city_hub.dto.request.AssignAgentRequest;
 import com.smartlogi.smart_city_hub.dto.request.CreateIncidentRequest;
 import com.smartlogi.smart_city_hub.dto.request.UpdateStatusRequest;
@@ -18,6 +19,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/incidents")
@@ -27,13 +31,17 @@ import org.springframework.web.bind.annotation.*;
 public class IncidentController {
 
     private final IncidentService incidentService;
+    private final ObjectMapper objectMapper;
 
     @PostMapping
     @PreAuthorize("hasAnyRole('USER', 'AGENT', 'ADMIN')")
-    @Operation(summary = "Create incident", description = "Report a new urban incident")
+    @Operation(summary = "Create incident with photos", description = "Report a new urban incident with optional photos")
     public ResponseEntity<ApiResponse<IncidentResponse>> createIncident(
-            @Valid @RequestBody CreateIncidentRequest request) {
-        IncidentResponse response = incidentService.createIncident(request);
+            @RequestPart("incident") String incidentJson,
+            @RequestPart(value = "photos", required = false) List<MultipartFile> photos) throws Exception {
+
+        CreateIncidentRequest request = objectMapper.readValue(incidentJson, CreateIncidentRequest.class);
+        IncidentResponse response = incidentService.createIncident(request, photos);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Incident reported", response));
     }
@@ -43,7 +51,7 @@ public class IncidentController {
     @Operation(summary = "List incidents", description = "Get all incidents with optional filters")
     public ResponseEntity<ApiResponse<Page<IncidentResponse>>> getIncidents(
             @RequestParam(required = false) IncidentStatus status,
-            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String categoryId,
             Pageable pageable) {
         Page<IncidentResponse> response = incidentService.getAllIncidents(status, categoryId, pageable);
         return ResponseEntity.ok(ApiResponse.success(response));
@@ -52,7 +60,7 @@ public class IncidentController {
     @GetMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get incident", description = "Get incident details by ID")
-    public ResponseEntity<ApiResponse<IncidentResponse>> getIncidentById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<IncidentResponse>> getIncidentById(@PathVariable String id) {
         IncidentResponse response = incidentService.getIncidentById(id);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
@@ -77,7 +85,7 @@ public class IncidentController {
     @PreAuthorize("hasAnyRole('AGENT', 'SUPERVISOR', 'ADMIN')")
     @Operation(summary = "Update status", description = "Change incident status")
     public ResponseEntity<ApiResponse<IncidentResponse>> updateStatus(
-            @PathVariable Long id,
+            @PathVariable String id,
             @Valid @RequestBody UpdateStatusRequest request) {
         IncidentResponse response = incidentService.updateStatus(id, request);
         return ResponseEntity.ok(ApiResponse.success("Status updated", response));
@@ -87,7 +95,7 @@ public class IncidentController {
     @PreAuthorize("hasAnyRole('SUPERVISOR', 'ADMIN')")
     @Operation(summary = "Assign agent", description = "Assign an agent to handle the incident")
     public ResponseEntity<ApiResponse<IncidentResponse>> assignAgent(
-            @PathVariable Long id,
+            @PathVariable String id,
             @Valid @RequestBody AssignAgentRequest request) {
         IncidentResponse response = incidentService.assignAgent(id, request);
         return ResponseEntity.ok(ApiResponse.success("Agent assigned", response));
