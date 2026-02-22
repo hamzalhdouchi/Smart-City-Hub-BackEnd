@@ -19,22 +19,21 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Ratings", description = "Incident rating management")
 @SecurityRequirement(name = "Bearer Authentication")
 public class RatingController {
-    
+
     private final RatingService ratingService;
-    
+
     @GetMapping("/rating")
     @Operation(summary = "Get rating", description = "Get the rating for an incident")
-    public ResponseEntity<ApiResponse<RatingResponse>> getRating(@PathVariable Long incidentId) {
+    public ResponseEntity<ApiResponse<RatingResponse>> getRating(@PathVariable String incidentId) {
         RatingResponse response = ratingService.getRatingByIncident(incidentId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
-    
+
     @PostMapping("/rate")
     @Operation(summary = "Rate incident", description = "Rate a resolved incident (reporter only)")
     public ResponseEntity<ApiResponse<RatingResponse>> rateIncident(
-            @PathVariable Long incidentId,
-            @Valid @RequestBody CreateRatingRequest request
-    ) {
+            @PathVariable String incidentId,
+            @Valid @RequestBody CreateRatingRequest request) {
         RatingResponse response = ratingService.rateIncident(incidentId, request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Incident rated", response));
