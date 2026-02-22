@@ -8,17 +8,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Request DTO for creating a notification (internal use).
- */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateNotificationRequest {
 
-    @NotNull(message = "User ID is required")
-    private Long userId;
+    @NotBlank(message = "User ID is required")
+    private String userId;
 
     @NotBlank(message = "Title is required")
     private String title;
@@ -29,5 +26,5 @@ public class CreateNotificationRequest {
     @NotNull(message = "Notification type is required")
     private NotificationType type;
 
-    private Long incidentId;
+    private String incidentId;
 }
