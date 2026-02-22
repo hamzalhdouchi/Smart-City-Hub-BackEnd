@@ -21,44 +21,41 @@ import java.util.List;
 @Tag(name = "Comments", description = "Incident comments management")
 @SecurityRequirement(name = "Bearer Authentication")
 public class CommentController {
-    
+
     private final CommentService commentService;
-    
+
     @GetMapping
     @Operation(summary = "List comments", description = "Get all comments for an incident")
-    public ResponseEntity<ApiResponse<List<CommentResponse>>> getComments(@PathVariable Long incidentId) {
+    public ResponseEntity<ApiResponse<List<CommentResponse>>> getComments(@PathVariable String incidentId) {
         List<CommentResponse> response = commentService.getCommentsByIncident(incidentId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
-    
+
     @PostMapping
     @Operation(summary = "Add comment", description = "Add a comment to an incident")
     public ResponseEntity<ApiResponse<CommentResponse>> addComment(
-            @PathVariable Long incidentId,
-            @Valid @RequestBody CreateCommentRequest request
-    ) {
+            @PathVariable String incidentId,
+            @Valid @RequestBody CreateCommentRequest request) {
         CommentResponse response = commentService.addComment(incidentId, request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Comment added", response));
     }
-    
+
     @PutMapping("/{commentId}")
     @Operation(summary = "Update comment", description = "Update your own comment")
     public ResponseEntity<ApiResponse<CommentResponse>> updateComment(
-            @PathVariable Long incidentId,
-            @PathVariable Long commentId,
-            @Valid @RequestBody CreateCommentRequest request
-    ) {
+            @PathVariable String incidentId,
+            @PathVariable String commentId,
+            @Valid @RequestBody CreateCommentRequest request) {
         CommentResponse response = commentService.updateComment(incidentId, commentId, request);
         return ResponseEntity.ok(ApiResponse.success("Comment updated", response));
     }
-    
+
     @DeleteMapping("/{commentId}")
     @Operation(summary = "Delete comment", description = "Delete your own comment (or any as Admin)")
     public ResponseEntity<ApiResponse<Void>> deleteComment(
-            @PathVariable Long incidentId,
-            @PathVariable Long commentId
-    ) {
+            @PathVariable String incidentId,
+            @PathVariable String commentId) {
         commentService.deleteComment(incidentId, commentId);
         return ResponseEntity.ok(ApiResponse.success("Comment deleted", null));
     }
