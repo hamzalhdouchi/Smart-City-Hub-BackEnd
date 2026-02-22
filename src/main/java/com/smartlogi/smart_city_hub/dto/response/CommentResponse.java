@@ -12,11 +12,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentResponse {
-    
-    private Long id;
+
+    private String id;
     private String content;
-    private Long authorId;
+    private String authorId;
     private String authorName;
+    private String authorRole;
+    private String authorPhotoUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
