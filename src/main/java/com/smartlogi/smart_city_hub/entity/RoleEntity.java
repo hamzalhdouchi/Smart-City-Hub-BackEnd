@@ -6,9 +6,6 @@ import lombok.*;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * RoleEntity for database-backed role management with permissions.
- */
 @Entity
 @Table(name = "roles")
 @Getter
@@ -19,8 +16,8 @@ import java.util.Set;
 public class RoleEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     @Column(nullable = false, unique = true)
     private String name;
