@@ -1,0 +1,407 @@
+package com.smartlogi.smart_city_hub.service;
+
+import com.smartlogi.smart_city_hub.dto.request.AssignAgentRequest;
+import com.smartlogi.smart_city_hub.dto.request.CreateIncidentRequest;
+import com.smartlogi.smart_city_hub.dto.request.UpdateStatusRequest;
+import com.smartlogi.smart_city_hub.dto.response.IncidentResponse;
+import com.smartlogi.smart_city_hub.entity.Category;
+import com.smartlogi.smart_city_hub.entity.Incident;
+import com.smartlogi.smart_city_hub.entity.IncidentPhoto;
+import com.smartlogi.smart_city_hub.entity.User;
+import com.smartlogi.smart_city_hub.entity.enums.IncidentStatus;
+import com.smartlogi.smart_city_hub.entity.enums.Priority;
+import com.smartlogi.smart_city_hub.entity.enums.Role;
+import com.smartlogi.smart_city_hub.exception.BadRequestException;
+import com.smartlogi.smart_city_hub.exception.ForbiddenException;
+import com.smartlogi.smart_city_hub.exception.ResourceNotFoundException;
+import com.smartlogi.smart_city_hub.mapper.IncidentMapper;
+import com.smartlogi.smart_city_hub.repository.CategoryRepository;
+import com.smartlogi.smart_city_hub.repository.IncidentPhotoRepository;
+import com.smartlogi.smart_city_hub.repository.IncidentRepository;
+import com.smartlogi.smart_city_hub.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class IncidentServiceTest {
+
+    @Mock
+    private IncidentRepository incidentRepository;
+    @Mock
+    private CategoryRepository categoryRepository;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private IncidentPhotoRepository photoRepository;
+    @Mock
+    private UserService userService;
+    @Mock
+    private MinioService minioService;
+    @Mock
+    private IncidentMapper incidentMapper;
+
+    @InjectMocks
+    private IncidentService incidentService;
+
+    private User mockUser;
+    private User mockAgent;
+    private Category mockCategory;
+    private Incident mockIncident;
+    private IncidentResponse mockIncidentResponse;
+
+    @BeforeEach
+    void setUp() {
+        mockUser = User.builder()
+                .id("1")
+                .email("user@example.com")
+                .role(Role.ROLE_USER)
+                .build();
+
+        mockAgent = User.builder()
+                .id("2")
+                .email("agent@example.com")
+                .role(Role.ROLE_AGENT)
+                .build();
+
+        mockCategory = Category.builder()
+                .id("cat-1")
+                .name("Test Category")
+                .build();
+
+        mockIncident = Incident.builder()
+                .id("inc-1")
+                .title("Test Incident")
+                .description("Description")
+                .status(IncidentStatus.NEW)
+                .reporter(mockUser)
+                .category(mockCategory)
+                .build();
+
+        mockIncidentResponse = new IncidentResponse();
+        mockIncidentResponse.setId("inc-1");
+        mockIncidentResponse.setTitle("Test Incident");
+    }
+
+    @Nested
+    @DisplayName("createIncident")
+    class CreateIncidentTests {
+
+        @Test
+        void should_CreateIncident_When_ValidRequest() {
+            // Arrange
+            CreateIncidentRequest request = new CreateIncidentRequest();
+            request.setCategoryId("cat-1");
+            request.setTitle("Test Incident");
+            request.setDescription("Description");
+
+            when(userService.getCurrentUser()).thenReturn(mockUser);
+            when(categoryRepository.findById("cat-1")).thenReturn(Optional.of(mockCategory));
+            when(incidentRepository.save(any(Incident.class))).thenReturn(mockIncident);
+            when(incidentMapper.toResponse(any(Incident.class))).thenReturn(mockIncidentResponse);
+
+            // Act
+            IncidentResponse response = incidentService.createIncident(request, null);
+
+            // Assert
+            assertNotNull(response);
+            assertEquals("inc-1", response.getId());
+            verify(incidentRepository, times(1)).save(any(Incident.class));
+            verify(photoRepository, never()).save(any(IncidentPhoto.class));
+        }
+
+        @Test
+        void should_ThrowException_When_CategoryNotFound() {
+            // Arrange
+            CreateIncidentRequest request = new CreateIncidentRequest();
+            request.setCategoryId("invalid-cat");
+
+            when(userService.getCurrentUser()).thenReturn(mockUser);
+            when(categoryRepository.findById("invalid-cat")).thenReturn(Optional.empty());
+
+            // Act & Assert
+            ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                    () -> incidentService.createIncident(request, null));
+
+            assertTrue(exception.getMessage().contains("Category"));
+            verify(incidentRepository, never()).save(any(Incident.class));
+        }
+
+        @Test
+        void should_UploadPhotos_When_PhotosProvided() throws Exception {
+            // Arrange
+            CreateIncidentRequest request = new CreateIncidentRequest();
+            request.setCategoryId("cat-1");
+            MultipartFile mockPhoto = mock(MultipartFile.class);
+            when(mockPhoto.isEmpty()).thenReturn(false);
+            when(mockPhoto.getOriginalFilename()).thenReturn("test.jpg");
+            when(mockPhoto.getSize()).thenReturn(1024L);
+
+            when(userService.getCurrentUser()).thenReturn(mockUser);
+            when(categoryRepository.findById("cat-1")).thenReturn(Optional.of(mockCategory));
+            when(incidentRepository.save(any(Incident.class))).thenReturn(mockIncident);
+            when(minioService.uploadFile(any(), anyString())).thenReturn("incidents/inc-1/test.jpg");
+            when(minioService.getPresignedUrl(anyString())).thenReturn("http://minio/test.jpg");
+            when(incidentMapper.toResponse(any(Incident.class))).thenReturn(mockIncidentResponse);
+
+            // Act
+            incidentService.createIncident(request, List.of(mockPhoto));
+
+            // Assert
+            verify(minioService).uploadFile(eq(mockPhoto), anyString());
+            verify(photoRepository).save(any(IncidentPhoto.class));
+        }
+
+        @Test
+        void should_HandleUploadFailure_When_MinioFails() throws Exception {
+            // Arrange
+            CreateIncidentRequest request = new CreateIncidentRequest();
+            request.setCategoryId("cat-1");
+            MultipartFile mockPhoto = mock(MultipartFile.class);
+            when(mockPhoto.isEmpty()).thenReturn(false);
+
+            when(userService.getCurrentUser()).thenReturn(mockUser);
+            when(categoryRepository.findById("cat-1")).thenReturn(Optional.of(mockCategory));
+            when(incidentRepository.save(any(Incident.class))).thenReturn(mockIncident);
+            when(minioService.uploadFile(any(), anyString())).thenThrow(new RuntimeException("Upload failed"));
+            when(incidentMapper.toResponse(any(Incident.class))).thenReturn(mockIncidentResponse);
+
+            // Act
+            IncidentResponse response = incidentService.createIncident(request, List.of(mockPhoto));
+
+            // Assert
+            assertNotNull(response);
+            verify(minioService).uploadFile(any(), anyString());
+            verify(photoRepository, never()).save(any(IncidentPhoto.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("getIncidentById")
+    class GetIncidentByIdTests {
+
+        @Test
+        void should_ReturnIncident_When_Exists() {
+            // Arrange
+            when(incidentRepository.findByIdWithRelations("inc-1")).thenReturn(Optional.of(mockIncident));
+            when(incidentMapper.toResponse(mockIncident)).thenReturn(mockIncidentResponse);
+
+            // Act
+            IncidentResponse response = incidentService.getIncidentById("inc-1");
+
+            // Assert
+            assertNotNull(response);
+            assertEquals("inc-1", response.getId());
+        }
+
+        @Test
+        void should_ThrowException_When_NotFound() {
+            // Arrange
+            when(incidentRepository.findByIdWithRelations("invalid")).thenReturn(Optional.empty());
+
+            // Act & Assert
+            assertThrows(ResourceNotFoundException.class, () -> incidentService.getIncidentById("invalid"));
+        }
+    }
+
+    @Nested
+    @DisplayName("Listing Incidents")
+    class ListIncidentsTests {
+
+        @Test
+        void should_GetAllIncidents_WithFilters() {
+            // Arrange
+            Page<Incident> page = new PageImpl<>(Collections.singletonList(mockIncident));
+            when(incidentRepository.findWithFilters(any(), any(), any(), any())).thenReturn(page);
+            when(incidentMapper.toResponse(any(Incident.class))).thenReturn(mockIncidentResponse);
+
+            // Act
+            Page<IncidentResponse> result = incidentService.getAllIncidents(null, null, Pageable.unpaged());
+
+            // Assert
+            assertNotNull(result);
+            assertEquals(1, result.getTotalElements());
+        }
+
+        @Test
+        void should_GetMyIncidents() {
+            // Arrange
+            when(userService.getCurrentUser()).thenReturn(mockUser);
+            Page<Incident> page = new PageImpl<>(Collections.singletonList(mockIncident));
+            when(incidentRepository.findByReporterId(eq("1"), any())).thenReturn(page);
+            when(incidentMapper.toResponse(any(Incident.class))).thenReturn(mockIncidentResponse);
+
+            // Act
+            Page<IncidentResponse> result = incidentService.getMyIncidents(Pageable.unpaged());
+
+            // Assert
+            assertNotNull(result);
+            assertEquals(1, result.getTotalElements());
+        }
+
+        @Test
+        void should_GetAssignedIncidents() {
+            // Arrange
+            when(userService.getCurrentUser()).thenReturn(mockAgent);
+            Page<Incident> page = new PageImpl<>(Collections.singletonList(mockIncident));
+            when(incidentRepository.findByAssignedAgentId(eq("2"), any())).thenReturn(page);
+            when(incidentMapper.toResponse(any(Incident.class))).thenReturn(mockIncidentResponse);
+
+            // Act
+            Page<IncidentResponse> result = incidentService.getAssignedIncidents(Pageable.unpaged());
+
+            // Assert
+            assertNotNull(result);
+            assertEquals(1, result.getTotalElements());
+        }
+    }
+
+    @Nested
+    @DisplayName("updateStatus")
+    class UpdateStatusTests {
+
+        @Test
+        void should_UpdateStatus_When_TransitionIsValid() {
+            // Arrange
+            UpdateStatusRequest request = new UpdateStatusRequest();
+            request.setStatus(IncidentStatus.ASSIGNED);
+
+            // Current status is NEW, user is admin/manager (mockUser in valid setup needs
+            // role adjust if needed)
+            // But here logic says: if agent, restrict. If not agent logic handles state
+            // machine.
+            // mockUser is CITIZEN. The code doesn't restrict citizen from updating status
+            // explicitly in validateStatusTransition logic except via logic?
+            // Wait, validateStatusTransition checks logic.
+            // NEW -> ASSIGNED is valid.
+
+            // To simulate admin/manager, let's say mockUser is ok or we change role.
+            // The code doesn't explicitly check for ROLE_MANAGER in
+            // validateStatusTransition, assumes caller has permission via controller or
+            // relies on logic.
+            // Actually `validateStatusTransition` only checks `if (user.getRole() ==
+            // Role.ROLE_AGENT)`.
+            // So CITIZEN can update? That might be a business logic gap, but for UNIT TEST
+            // we follow code.
+
+            when(userService.getCurrentUser()).thenReturn(mockUser);
+            when(incidentRepository.findById("inc-1")).thenReturn(Optional.of(mockIncident));
+            when(incidentRepository.save(any(Incident.class))).thenReturn(mockIncident);
+            when(incidentMapper.toResponse(any(Incident.class))).thenReturn(mockIncidentResponse);
+
+            // Act
+            IncidentResponse response = incidentService.updateStatus("inc-1", request);
+
+            // Assert
+            verify(incidentRepository).save(mockIncident);
+            assertEquals(IncidentStatus.ASSIGNED, mockIncident.getStatus());
+        }
+
+        @Test
+        void should_ThrowForbidden_When_AgentUpdatesUnassignedIncident() {
+            // Arrange
+            UpdateStatusRequest request = new UpdateStatusRequest();
+            request.setStatus(IncidentStatus.IN_PROGRESS); // Valid transition from ASSIGNED
+
+            mockIncident.setStatus(IncidentStatus.ASSIGNED);
+            // Not assigned to anyone
+
+            when(userService.getCurrentUser()).thenReturn(mockAgent); // Role AGENT
+            when(incidentRepository.findById("inc-1")).thenReturn(Optional.of(mockIncident));
+
+            // Act & Assert
+            assertThrows(ForbiddenException.class, () -> incidentService.updateStatus("inc-1", request));
+        }
+
+        @Test
+        void should_ThrowBadRequest_When_TransitionInvalid() {
+            // Arrange
+            // NEW -> RESOLVED is invalid
+            UpdateStatusRequest request = new UpdateStatusRequest();
+            request.setStatus(IncidentStatus.RESOLVED);
+
+            when(userService.getCurrentUser()).thenReturn(mockUser);
+            when(incidentRepository.findById("inc-1")).thenReturn(Optional.of(mockIncident));
+
+            // Act & Assert
+            assertThrows(BadRequestException.class, () -> incidentService.updateStatus("inc-1", request));
+        }
+
+        @Test
+        void should_SetResolvedAt_When_StatusIsResolved() {
+            // Arrange
+            mockIncident.setStatus(IncidentStatus.IN_PROGRESS);
+            UpdateStatusRequest request = new UpdateStatusRequest();
+            request.setStatus(IncidentStatus.RESOLVED);
+
+            when(userService.getCurrentUser()).thenReturn(mockUser);
+            when(incidentRepository.findById("inc-1")).thenReturn(Optional.of(mockIncident));
+            when(incidentRepository.save(any(Incident.class))).thenReturn(mockIncident);
+            when(incidentMapper.toResponse(any(Incident.class))).thenReturn(mockIncidentResponse);
+
+            // Act
+            incidentService.updateStatus("inc-1", request);
+
+            // Assert
+            assertNotNull(mockIncident.getResolvedAt());
+        }
+    }
+
+    @Nested
+    @DisplayName("assignAgent")
+    class AssignAgentTests {
+
+        @Test
+        void should_AssignAgent_When_Valid() {
+            // Arrange
+            AssignAgentRequest request = new AssignAgentRequest();
+            request.setAgentId("2");
+
+            when(userService.getCurrentUser()).thenReturn(mockUser);
+            when(incidentRepository.findById("inc-1")).thenReturn(Optional.of(mockIncident));
+            when(userRepository.findById("2")).thenReturn(Optional.of(mockAgent));
+            when(incidentRepository.save(any(Incident.class))).thenReturn(mockIncident);
+            when(incidentMapper.toResponse(any(Incident.class))).thenReturn(mockIncidentResponse);
+
+            // Act
+            IncidentResponse response = incidentService.assignAgent("inc-1", request);
+
+            // Assert
+            verify(incidentRepository).save(mockIncident);
+            assertEquals(mockAgent, mockIncident.getAssignedAgent());
+            assertEquals(IncidentStatus.ASSIGNED, mockIncident.getStatus());
+        }
+
+        @Test
+        void should_ThrowBadRequest_When_UserNotAgent() {
+            // Arrange
+            AssignAgentRequest request = new AssignAgentRequest();
+            request.setAgentId("1"); // mockUser is CITIZEN
+
+            when(incidentRepository.findById("inc-1")).thenReturn(Optional.of(mockIncident));
+            when(userRepository.findById("1")).thenReturn(Optional.of(mockUser));
+
+            // Act & Assert
+            BadRequestException exception = assertThrows(BadRequestException.class,
+                    () -> incidentService.assignAgent("inc-1", request));
+            assertEquals("User is not an agent", exception.getMessage());
+        }
+    }
+}

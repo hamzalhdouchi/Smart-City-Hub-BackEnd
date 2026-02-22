@@ -1,0 +1,1443 @@
+{
+	"info": {
+		"_postman_id": "smart-city-hub-api-2024",
+		"name": "Smart City Hub API",
+		"description": "Complete API collection for Smart City Hub - Urban Incident Management Platform.\n\n## Authentication\nMost endpoints require JWT Bearer Authentication. First register/login to get tokens, then set the `{{accessToken}}` variable.\n\n## Roles\n- **ROLE_USER**: Citizens who can report incidents\n- **ROLE_AGENT**: Municipal agents who handle incidents\n- **ROLE_SUPERVISOR**: Supervisors who manage agents\n- **ROLE_ADMIN**: Administrators with full access",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "accessToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refreshToken",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "🔐 Authentication",
+			"description": "User authentication endpoints - register, login, token refresh, and logout",
+			"item": [
+				{
+					"name": "Register New User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.data && jsonData.data.accessToken) {",
+									"        pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
+									"        pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"citizen@smartcity.com\",\n    \"password\": \"Password123!\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"phone\": \"+212612345678\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "register"]
+						},
+						"description": "Register a new citizen account with ROLE_USER"
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.data && jsonData.data.accessToken) {",
+									"        pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
+									"        pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"citizen@smartcity.com\",\n    \"password\": \"Password123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "login"]
+						},
+						"description": "Authenticate user and get JWT tokens"
+					},
+					"response": []
+				},
+				{
+					"name": "Login as Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.data && jsonData.data.accessToken) {",
+									"        pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
+									"        pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@smartcity.com\",\n    \"password\": \"Admin123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "login"]
+						},
+						"description": "Login as administrator to access admin-only endpoints"
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.data && jsonData.data.accessToken) {",
+									"        pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
+									"        pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refreshToken\": \"{{refreshToken}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/refresh",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "refresh"]
+						},
+						"description": "Get new access token using refresh token"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refreshToken\": \"{{refreshToken}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/logout",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "logout"]
+						},
+						"description": "Invalidate refresh token and logout"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "👤 Users",
+			"description": "User management endpoints - profile, user listing, role management",
+			"item": [
+				{
+					"name": "Get Current User Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "me"]
+						},
+						"description": "Get the profile of the currently authenticated user"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/me?firstName=John&lastName=Updated&phone=+212698765432",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "me"],
+							"query": [
+								{
+									"key": "firstName",
+									"value": "John"
+								},
+								{
+									"key": "lastName",
+									"value": "Updated"
+								},
+								{
+									"key": "phone",
+									"value": "+212698765432"
+								}
+							]
+						},
+						"description": "Update the current user's profile information"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Users (Admin Only)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users?page=0&size=10&sort=createdAt,desc",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								},
+								{
+									"key": "sort",
+									"value": "createdAt,desc"
+								}
+							]
+						},
+						"description": "Get all users with pagination (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by ID (Admin Only)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "1"]
+						},
+						"description": "Get user details by ID (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Available Agents",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/agents",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "agents"]
+						},
+						"description": "Get all active agents (Supervisor/Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Role (Admin Only)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/2/role?role=ROLE_AGENT",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "2", "role"],
+							"query": [
+								{
+									"key": "role",
+									"value": "ROLE_AGENT",
+									"description": "Options: ROLE_USER, ROLE_AGENT, ROLE_SUPERVISOR, ROLE_ADMIN"
+								}
+							]
+						},
+						"description": "Change a user's role (Admin only). Available roles: ROLE_USER, ROLE_AGENT, ROLE_SUPERVISOR, ROLE_ADMIN"
+					},
+					"response": []
+				},
+				{
+					"name": "Deactivate User (Admin Only)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/2/deactivate",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "2", "deactivate"]
+						},
+						"description": "Deactivate a user account (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Activate User (Admin Only)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/2/activate",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "2", "activate"]
+						},
+						"description": "Activate a user account (Admin only)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "📁 Categories",
+			"description": "Incident category management - CRUD operations for incident categories",
+			"item": [
+				{
+					"name": "Get Active Categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/categories",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "categories"]
+						},
+						"description": "Get all active incident categories (public endpoint)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Categories (Admin Only)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/categories/all",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "categories", "all"]
+						},
+						"description": "Get all categories including inactive (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Category by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/categories/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "categories", "1"]
+						},
+						"description": "Get category details by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Category (Admin Only)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Road Infrastructure\",\n    \"description\": \"Issues related to roads, potholes, traffic signs, and road safety\",\n    \"icon\": \"road\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/categories",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "categories"]
+						},
+						"description": "Create a new incident category (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Category (Admin Only)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Road Infrastructure Updated\",\n    \"description\": \"Updated description for road infrastructure issues\",\n    \"icon\": \"construction\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/categories/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "categories", "1"]
+						},
+						"description": "Update an existing category (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Category (Admin Only)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/categories/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "categories", "1"]
+						},
+						"description": "Deactivate a category (Admin only) - Soft delete"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "🚨 Incidents",
+			"description": "Core incident management - create, list, filter, update status, and assign agents",
+			"item": [
+				{
+					"name": "Create Incident",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Large pothole on main street\",\n    \"description\": \"There is a dangerous pothole approximately 50cm in diameter near the intersection. It poses a risk to vehicles and pedestrians.\",\n    \"latitude\": 33.5731,\n    \"longitude\": -7.5898,\n    \"address\": \"123 Boulevard Mohammed V\",\n    \"district\": \"Centre-Ville\",\n    \"categoryId\": 1,\n    \"urgencyLevel\": \"HIGH\",\n    \"visibility\": \"PUBLIC\",\n    \"priority\": \"MEDIUM\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/incidents",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "incidents"]
+						},
+						"description": "Report a new urban incident. UrgencyLevel: LOW, MEDIUM, HIGH, CRITICAL. Visibility: PUBLIC, PRIVATE. Priority: LOW, MEDIUM, HIGH, URGENT"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Incident - Water Leak",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Water pipe leak flooding sidewalk\",\n    \"description\": \"A major water leak is causing flooding on the sidewalk. Water has been running for several hours.\",\n    \"latitude\": 33.5892,\n    \"longitude\": -7.6031,\n    \"address\": \"45 Rue Hassan II\",\n    \"district\": \"Maarif\",\n    \"categoryId\": 2,\n    \"urgencyLevel\": \"CRITICAL\",\n    \"visibility\": \"PUBLIC\",\n    \"priority\": \"URGENT\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/incidents",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "incidents"]
+						},
+						"description": "Report a water-related incident"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Incident - Street Light",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Broken street light creating dark zone\",\n    \"description\": \"Street light not working for the past week. The area becomes very dark at night, creating safety concerns.\",\n    \"latitude\": 33.5645,\n    \"longitude\": -7.6123,\n    \"address\": \"78 Avenue des FAR\",\n    \"district\": \"Anfa\",\n    \"categoryId\": 3,\n    \"urgencyLevel\": \"MEDIUM\",\n    \"visibility\": \"PUBLIC\",\n    \"priority\": \"LOW\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/incidents",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "incidents"]
+						},
+						"description": "Report a street lighting incident"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Incidents",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/incidents?page=0&size=10&sort=createdAt,desc",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "incidents"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								},
+								{
+									"key": "sort",
+									"value": "createdAt,desc"
+								}
+							]
+						},
+						"description": "Get all incidents with pagination"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Incidents - Filter by Status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/incidents?status=NEW&page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "incidents"],
+							"query": [
+								{
+									"key": "status",
+									"value": "NEW",
+									"description": "Options: NEW, ASSIGNED, IN_PROGRESS, RESOLVED, VALIDATED, REJECTED, REOPENED"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get incidents filtered by status. Status options: NEW, ASSIGNED, IN_PROGRESS, RESOLVED, VALIDATED, REJECTED, REOPENED"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Incidents - Filter by Category",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/incidents?categoryId=1&page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "incidents"],
+							"query": [
+								{
+									"key": "categoryId",
+									"value": "1"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get incidents filtered by category"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Incidents - Filter by Status and Category",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/incidents?status=IN_PROGRESS&categoryId=1&page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "incidents"],
+							"query": [
+								{
+									"key": "status",
+									"value": "IN_PROGRESS"
+								},
+								{
+									"key": "categoryId",
+									"value": "1"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get incidents filtered by both status and category"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Incident by ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/incidents/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "incidents", "1"]
+						},
+						"description": "Get incident details by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Incidents",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/incidents/my?page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "incidents", "my"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get incidents reported by the current user"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Assigned Incidents (Agent Only)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/incidents/assigned?page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "incidents", "assigned"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get incidents assigned to current agent (Agent role required)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Incident Status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"IN_PROGRESS\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/incidents/1/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "incidents", "1", "status"]
+						},
+						"description": "Change incident status. Options: NEW, ASSIGNED, IN_PROGRESS, RESOLVED, VALIDATED, REJECTED, REOPENED. Requires Agent/Supervisor/Admin role."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Status to RESOLVED",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"RESOLVED\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/incidents/1/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "incidents", "1", "status"]
+						},
+						"description": "Mark incident as resolved"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Status to REJECTED",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"REJECTED\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/incidents/1/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "incidents", "1", "status"]
+						},
+						"description": "Reject an incident as invalid or duplicate"
+					},
+					"response": []
+				},
+				{
+					"name": "Assign Agent to Incident",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"agentId\": 2\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/incidents/1/assign",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "incidents", "1", "assign"]
+						},
+						"description": "Assign an agent to handle the incident (Supervisor/Admin only)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "💬 Comments",
+			"description": "Incident comments management - add, update, and delete comments on incidents",
+			"item": [
+				{
+					"name": "Get Comments for Incident",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/incidents/1/comments",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "incidents", "1", "comments"]
+						},
+						"description": "Get all comments for an incident"
+					},
+					"response": []
+				},
+				{
+					"name": "Add Comment to Incident",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"content\": \"I can confirm this issue. I saw the same pothole yesterday and almost damaged my car tire.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/incidents/1/comments",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "incidents", "1", "comments"]
+						},
+						"description": "Add a comment to an incident"
+					},
+					"response": []
+				},
+				{
+					"name": "Add Agent Comment",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"content\": \"Thank you for reporting this issue. A maintenance team has been dispatched and will arrive within 2 hours.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/incidents/1/comments",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "incidents", "1", "comments"]
+						},
+						"description": "Add an agent response comment"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Comment",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"content\": \"Updated comment: I can confirm this issue is still present today.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/incidents/1/comments/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "incidents", "1", "comments", "1"]
+						},
+						"description": "Update your own comment"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Comment",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/incidents/1/comments/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "incidents", "1", "comments", "1"]
+						},
+						"description": "Delete your own comment (or any as Admin)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "⭐ Ratings",
+			"description": "Incident rating management - rate resolved incidents",
+			"item": [
+				{
+					"name": "Get Incident Rating",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/incidents/1/rating",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "incidents", "1", "rating"]
+						},
+						"description": "Get the rating for a specific incident"
+					},
+					"response": []
+				},
+				{
+					"name": "Rate Resolved Incident - 5 Stars",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"stars\": 5,\n    \"feedback\": \"Excellent work! The issue was resolved quickly and professionally. Very satisfied with the municipal response.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/incidents/1/rate",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "incidents", "1", "rate"]
+						},
+						"description": "Rate a resolved incident (1-5 stars). Only the incident reporter can rate."
+					},
+					"response": []
+				},
+				{
+					"name": "Rate Resolved Incident - 3 Stars",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"stars\": 3,\n    \"feedback\": \"The issue was resolved but it took longer than expected. Room for improvement in response time.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/incidents/1/rate",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "incidents", "1", "rate"]
+						},
+						"description": "Rate with average satisfaction"
+					},
+					"response": []
+				},
+				{
+					"name": "Rate Resolved Incident - 1 Star",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"stars\": 1,\n    \"feedback\": \"Very disappointed. The issue was not properly fixed and I had to report it again.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/incidents/1/rate",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "incidents", "1", "rate"]
+						},
+						"description": "Rate with low satisfaction"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "📊 Statistics",
+			"description": "Analytics and statistics endpoints - platform metrics and reports",
+			"item": [
+				{
+					"name": "Get Global Statistics (Admin Only)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/statistics/global",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "statistics", "global"]
+						},
+						"description": "Get global platform statistics including total incidents, users, resolution rates, etc. (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Statistics by Status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/statistics/by-status",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "statistics", "by-status"]
+						},
+						"description": "Get incident count grouped by status (Admin/Supervisor only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Statistics by Category",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/statistics/by-category",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "statistics", "by-category"]
+						},
+						"description": "Get incident count grouped by category (Admin/Supervisor only)"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
