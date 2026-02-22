@@ -5,9 +5,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-/**
- * Rating entity for incident resolution feedback.
- */
 @Entity
 @Table(name = "ratings")
 @Getter
@@ -18,8 +15,8 @@ import java.time.LocalDateTime;
 public class Rating {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "incident_id", nullable = false, unique = true)
@@ -30,7 +27,7 @@ public class Rating {
     private User user;
 
     @Column(nullable = false)
-    private Integer stars; 
+    private Integer stars;
 
     @Column(columnDefinition = "TEXT")
     private String feedback;
