@@ -21,16 +21,16 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "Categories", description = "Incident category management")
 public class CategoryController {
-    
+
     private final CategoryService categoryService;
-    
+
     @GetMapping
     @Operation(summary = "List categories", description = "Get all active incident categories")
     public ResponseEntity<ApiResponse<List<CategoryResponse>>> getCategories() {
         List<CategoryResponse> response = categoryService.getActiveCategories();
         return ResponseEntity.ok(ApiResponse.success(response));
     }
-    
+
     @GetMapping("/all")
     @PreAuthorize("hasRole('ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
@@ -39,44 +39,51 @@ public class CategoryController {
         List<CategoryResponse> response = categoryService.getAllCategories();
         return ResponseEntity.ok(ApiResponse.success(response));
     }
-    
+
     @GetMapping("/{id}")
     @Operation(summary = "Get category", description = "Get category by ID")
-    public ResponseEntity<ApiResponse<CategoryResponse>> getCategoryById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<CategoryResponse>> getCategoryById(@PathVariable String id) {
         CategoryResponse response = categoryService.getCategoryById(id);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
-    
+
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Create category", description = "Create a new incident category (Admin only)")
     public ResponseEntity<ApiResponse<CategoryResponse>> createCategory(
-            @Valid @RequestBody CreateCategoryRequest request
-    ) {
+            @Valid @RequestBody CreateCategoryRequest request) {
         CategoryResponse response = categoryService.createCategory(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Category created", response));
     }
-    
+
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Update category", description = "Update an existing category (Admin only)")
     public ResponseEntity<ApiResponse<CategoryResponse>> updateCategory(
-            @PathVariable Long id,
-            @Valid @RequestBody CreateCategoryRequest request
-    ) {
+            @PathVariable String id,
+            @Valid @RequestBody CreateCategoryRequest request) {
         CategoryResponse response = categoryService.updateCategory(id, request);
         return ResponseEntity.ok(ApiResponse.success("Category updated", response));
     }
-    
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Delete category", description = "Deactivate a category (Admin only)")
-    public ResponseEntity<ApiResponse<Void>> deleteCategory(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteCategory(@PathVariable String id) {
         categoryService.deleteCategory(id);
         return ResponseEntity.ok(ApiResponse.success("Category deleted", null));
+    }
+
+    @PutMapping("/{id}/reactivate")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @Operation(summary = "Reactivate category", description = "Reactivate a previously deactivated category (Admin only)")
+    public ResponseEntity<ApiResponse<CategoryResponse>> reactivateCategory(@PathVariable String id) {
+        CategoryResponse response = categoryService.reactivateCategory(id);
+        return ResponseEntity.ok(ApiResponse.success("Category reactivated", response));
     }
 }
