@@ -10,9 +10,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Request DTO for creating a new incident.
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -34,8 +31,8 @@ public class CreateIncidentRequest {
 
     private String district;
 
-    @NotNull(message = "Category is required")
-    private Long categoryId;
+    @NotBlank(message = "Category is required")
+    private String categoryId;
 
     private UrgencyLevel urgencyLevel;
 
