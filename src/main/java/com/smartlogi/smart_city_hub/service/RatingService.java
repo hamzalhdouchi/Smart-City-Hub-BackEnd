@@ -27,20 +27,19 @@ public class RatingService {
     private final UserService userService;
     private final RatingMapper ratingMapper;
 
-    public RatingResponse getRatingByIncident(Long incidentId) {
+    public RatingResponse getRatingByIncident(String incidentId) {
         Rating rating = ratingRepository.findByIncidentId(incidentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Rating not found for this incident"));
         return ratingMapper.toResponse(rating);
     }
 
     @Transactional
-    public RatingResponse rateIncident(Long incidentId, CreateRatingRequest request) {
+    public RatingResponse rateIncident(String incidentId, CreateRatingRequest request) {
         Incident incident = incidentRepository.findById(incidentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Incident", incidentId));
+                .orElseThrow(() -> new ResourceNotFoundException("Incident", "id", incidentId));
 
         User currentUser = userService.getCurrentUser();
 
-        // Only the reporter can rate their own incident
         if (!incident.getReporter().getId().equals(currentUser.getId())) {
             throw new ForbiddenException("You can only rate your own incidents");
         }
@@ -49,7 +48,6 @@ public class RatingService {
             throw new BadRequestException("Can only rate resolved or validated incidents");
         }
 
-        // Check if already rated
         if (ratingRepository.existsByIncidentId(incidentId)) {
             throw new BadRequestException("Incident already rated");
         }
@@ -71,7 +69,7 @@ public class RatingService {
         return ratingRepository.getAverageRating();
     }
 
-    public Double getAverageRatingByAgent(Long agentId) {
+    public Double getAverageRatingByAgent(String agentId) {
         return ratingRepository.getAverageRatingByAgent(agentId);
     }
 }
