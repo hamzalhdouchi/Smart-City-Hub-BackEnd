@@ -6,9 +6,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-/**
- * Notification entity for user notifications.
- */
 @Entity
 @Table(name = "notifications")
 @Getter
@@ -19,8 +16,8 @@ import java.time.LocalDateTime;
 public class Notification {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
