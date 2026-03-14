@@ -34,3 +34,13 @@ build/
 
 ### Documentation ###
 docs/
+
+### Environment secrets ###
+.env
+.env.prod
+.env.local
+*.env
+
+### Docker volumes (local) ###
+postgres_data/
+minio_data/
