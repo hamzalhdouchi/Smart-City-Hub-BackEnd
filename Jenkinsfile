@@ -43,7 +43,7 @@ pipeline {
             steps {
                 echo 'Running unit tests with coverage...'
                 catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                    sh 'mvn verify -B'
+                    bat 'mvn verify -B'
                 }
             }
             post {
@@ -77,7 +77,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building application JAR...'
-                sh 'mvn package -DskipTests -B'
+                bat 'mvn package -DskipTests -B'
             }
             post {
                 success {
@@ -90,9 +90,9 @@ pipeline {
         stage('Docker Build') {
             steps {
                 echo "Building Docker image: ${DOCKER_IMAGE}:${DOCKER_TAG}"
-                script {
-                    dockerImage = docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}", "--no-cache .")
-                }
+                bat """
+                    docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} --no-cache .
+                """
             }
         }
 
@@ -108,8 +108,8 @@ pipeline {
             }
             post {
                 always {
-                    sh "docker rmi ${DOCKER_IMAGE}:${DOCKER_TAG} || true"
-                    sh "docker rmi ${DOCKER_IMAGE}:latest || true"
+                    bat "docker rmi ${DOCKER_IMAGE}:${DOCKER_TAG} || true"
+                    bat "docker rmi ${DOCKER_IMAGE}:latest || true"
                 }
             }
         }
@@ -131,7 +131,7 @@ pipeline {
                     ),
                     file(credentialsId: ENV_FILE_CRED, variable: 'ENV_FILE')
                 ]) {
-                    sh '''
+                    bat '''
                         scp -i ${SSH_KEY} \
                             -o StrictHostKeyChecking=no \
                             ${ENV_FILE} \
