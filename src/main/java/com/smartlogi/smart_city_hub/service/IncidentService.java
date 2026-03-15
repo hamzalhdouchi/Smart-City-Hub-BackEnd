@@ -136,7 +136,8 @@ public class IncidentService {
 
         incident.setStatus(request.getStatus());
 
-        if (request.getStatus() == IncidentStatus.RESOLVED || request.getStatus() == IncidentStatus.VALIDATED) {
+        if (request.getStatus() == IncidentStatus.RESOLVED || request.getStatus() == IncidentStatus.VALIDATED
+                || request.getStatus() == IncidentStatus.PENDING_VALIDATION) {
             incident.setResolvedAt(LocalDateTime.now());
         }
 
@@ -172,6 +173,71 @@ public class IncidentService {
         return incidentMapper.toResponse(incident);
     }
 
+    @Transactional
+    public IncidentResponse resolveIncident(String id, List<MultipartFile> photos) {
+        Incident incident = incidentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Incident", "id", id));
+
+        User currentUser = userService.getCurrentUser();
+
+        if (incident.getAssignedAgent() == null ||
+                !incident.getAssignedAgent().getId().equals(currentUser.getId())) {
+            throw new ForbiddenException("You can only resolve incidents assigned to you");
+        }
+
+        if (incident.getStatus() != IncidentStatus.IN_PROGRESS) {
+            throw new BadRequestException("Only IN_PROGRESS incidents can be resolved");
+        }
+
+        boolean hasValidPhoto = photos != null && photos.stream().anyMatch(p -> p != null && !p.isEmpty());
+        if (!hasValidPhoto) {
+            throw new BadRequestException("At least one resolution photo is required to resolve an incident");
+        }
+
+        for (MultipartFile photo : photos) {
+            if (photo != null && !photo.isEmpty()) {
+                validateResolutionPhoto(photo);
+                try {
+                    String folder = "incidents/" + id + "/resolution";
+                    String objectName = minioService.uploadFile(photo, folder);
+                    String fileUrl = minioService.getPresignedUrl(objectName);
+
+                    IncidentPhoto incidentPhoto = IncidentPhoto.builder()
+                            .incident(incident)
+                            .fileName(photo.getOriginalFilename())
+                            .filePath(objectName)
+                            .fileUrl(fileUrl)
+                            .fileSize(photo.getSize())
+                            .uploadedBy(currentUser)
+                            .build();
+
+                    photoRepository.save(incidentPhoto);
+                    log.info("Resolution photo uploaded for incident {}: {}", id, objectName);
+                } catch (Exception e) {
+                    log.error("Failed to upload resolution photo: {}", e.getMessage());
+                    throw new RuntimeException("Failed to upload resolution photo: " + photo.getOriginalFilename(), e);
+                }
+            }
+        }
+
+        incident.setStatus(IncidentStatus.PENDING_VALIDATION);
+        incident = incidentRepository.save(incident);
+        log.info("Incident {} marked as PENDING_VALIDATION by agent {}", id, currentUser.getEmail());
+
+        return incidentMapper.toResponse(incident);
+    }
+
+    private void validateResolutionPhoto(MultipartFile file) {
+        if (file.getSize() > 10 * 1024 * 1024) {
+            throw new BadRequestException("File size exceeds maximum allowed size of 10MB");
+        }
+        String contentType = file.getContentType();
+        List<String> allowed = java.util.List.of("image/jpeg", "image/png", "image/gif", "image/webp");
+        if (contentType == null || !allowed.contains(contentType)) {
+            throw new BadRequestException("Invalid file type. Allowed types: JPEG, PNG, GIF, WebP");
+        }
+    }
+
     private void validateStatusTransition(Incident incident, IncidentStatus newStatus, User user) {
         IncidentStatus currentStatus = incident.getStatus();
 
@@ -194,8 +260,19 @@ public class IncidentService {
                 }
                 break;
             case IN_PROGRESS:
-                if (newStatus != IncidentStatus.RESOLVED) {
+                if (user.getRole() == Role.ROLE_AGENT) {
+                    throw new BadRequestException("Agents must use the /resolve endpoint to submit resolution with photos");
+                }
+                if (newStatus != IncidentStatus.PENDING_VALIDATION && newStatus != IncidentStatus.RESOLVED) {
                     throw new BadRequestException("Invalid status transition");
+                }
+                break;
+            case PENDING_VALIDATION:
+                if (user.getRole() == Role.ROLE_AGENT) {
+                    throw new ForbiddenException("Only admins and supervisors can approve or reject resolutions");
+                }
+                if (newStatus != IncidentStatus.RESOLVED && newStatus != IncidentStatus.REOPENED) {
+                    throw new BadRequestException("Invalid status transition from PENDING_VALIDATION");
                 }
                 break;
             case RESOLVED:

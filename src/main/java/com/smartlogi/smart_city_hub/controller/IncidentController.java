@@ -91,6 +91,16 @@ public class IncidentController {
         return ResponseEntity.ok(ApiResponse.success("Status updated", response));
     }
 
+    @PostMapping("/{id}/resolve")
+    @PreAuthorize("hasRole('AGENT')")
+    @Operation(summary = "Resolve incident", description = "Agent submits resolution with required proof photos. Status becomes PENDING_VALIDATION until admin approves.")
+    public ResponseEntity<ApiResponse<IncidentResponse>> resolveIncident(
+            @PathVariable String id,
+            @RequestPart("photos") List<MultipartFile> photos) {
+        IncidentResponse response = incidentService.resolveIncident(id, photos);
+        return ResponseEntity.ok(ApiResponse.success("Resolution submitted, awaiting admin approval", response));
+    }
+
     @PostMapping("/{id}/assign")
     @PreAuthorize("hasAnyRole('SUPERVISOR', 'ADMIN')")
     @Operation(summary = "Assign agent", description = "Assign an agent to handle the incident")
