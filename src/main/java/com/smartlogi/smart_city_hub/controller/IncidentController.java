@@ -91,12 +91,12 @@ public class IncidentController {
         return ResponseEntity.ok(ApiResponse.success("Status updated", response));
     }
 
-    @PostMapping("/{id}/resolve")
+    @PostMapping(value = "/{id}/resolve", consumes = {"multipart/form-data"})
     @PreAuthorize("hasRole('AGENT')")
     @Operation(summary = "Resolve incident", description = "Agent submits resolution with required proof photos. Status becomes PENDING_VALIDATION until admin approves.")
     public ResponseEntity<ApiResponse<IncidentResponse>> resolveIncident(
             @PathVariable String id,
-            @RequestPart("photos") List<MultipartFile> photos) {
+            @RequestPart(value = "photos", required = false) List<MultipartFile> photos) {
         IncidentResponse response = incidentService.resolveIncident(id, photos);
         return ResponseEntity.ok(ApiResponse.success("Resolution submitted, awaiting admin approval", response));
     }

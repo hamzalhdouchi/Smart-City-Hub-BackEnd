@@ -61,6 +61,22 @@ public class EmailService {
     }
 
     @Async
+    public void sendForgotPasswordEmail(User user, String newPassword) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(user.getEmail());
+            message.setSubject("Your New Password - Smart City Hub");
+            message.setText(buildForgotPasswordEmailBody(user, newPassword));
+
+            mailSender.send(message);
+            log.info("New password email sent to: {}", user.getEmail());
+        } catch (Exception e) {
+            log.error("Failed to send new password email to {}: {}", user.getEmail(), e.getMessage());
+        }
+    }
+
+    @Async
     public void sendPasswordChangeConfirmation(User user) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
@@ -148,5 +164,33 @@ public class EmailService {
                 Smart City Hub Team
                 """,
                 user.getFirstName());
+    }
+
+    private String buildForgotPasswordEmailBody(User user, String newPassword) {
+        return String.format("""
+                Password Reset - Smart City Hub
+                ================================
+
+                Dear %s,
+
+                You requested a password reset. A new password has been generated for your account.
+
+                Your New Credentials:
+                - Email: %s
+                - New Password: %s
+
+                Login URL: %s
+
+                IMPORTANT: For security reasons, you will be required to change this password upon your next login.
+
+                If you did not request this reset, please contact our support team immediately.
+
+                --
+                Smart City Hub Team
+                """,
+                user.getFirstName(),
+                user.getEmail(),
+                newPassword,
+                loginUrl);
     }
 }

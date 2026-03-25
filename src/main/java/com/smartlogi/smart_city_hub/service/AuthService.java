@@ -1,6 +1,7 @@
 package com.smartlogi.smart_city_hub.service;
 
 import com.smartlogi.smart_city_hub.dto.request.ChangePasswordRequest;
+import com.smartlogi.smart_city_hub.dto.request.ForgotPasswordRequest;
 import com.smartlogi.smart_city_hub.dto.request.LoginRequest;
 import com.smartlogi.smart_city_hub.dto.request.RefreshTokenRequest;
 import com.smartlogi.smart_city_hub.dto.request.RegisterRequest;
@@ -188,6 +189,23 @@ public class AuthService {
         log.info("Token refreshed for user: {}", user.getEmail());
 
         return generateAuthResponse(user);
+    }
+
+    @Transactional
+    public void forgotPassword(ForgotPasswordRequest request) {
+        userRepository.findByEmail(request.getEmail()).ifPresent(user -> {
+            if (user.getStatus() != UserStatus.ACTIVE) {
+                return;
+            }
+
+            String newPassword = passwordGeneratorService.generateSecurePassword();
+            user.setPassword(passwordEncoder.encode(newPassword));
+            user.setMustChangePassword(true);
+            userRepository.save(user);
+
+            log.info("Password reset for user: {}", user.getEmail());
+            emailService.sendForgotPasswordEmail(user, newPassword);
+        });
     }
 
     @Transactional

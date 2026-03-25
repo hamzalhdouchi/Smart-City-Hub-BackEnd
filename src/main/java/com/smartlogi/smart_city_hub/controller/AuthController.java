@@ -1,6 +1,7 @@
 package com.smartlogi.smart_city_hub.controller;
 
 import com.smartlogi.smart_city_hub.dto.request.ChangePasswordRequest;
+import com.smartlogi.smart_city_hub.dto.request.ForgotPasswordRequest;
 import com.smartlogi.smart_city_hub.dto.request.LoginRequest;
 import com.smartlogi.smart_city_hub.dto.request.RefreshTokenRequest;
 import com.smartlogi.smart_city_hub.dto.request.RegisterRequest;
@@ -60,6 +61,14 @@ public class AuthController {
     public ResponseEntity<ApiResponse<AuthResponse>> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
         AuthResponse response = authService.refreshToken(request);
         return ResponseEntity.ok(ApiResponse.success("Token refreshed", response));
+    }
+
+    @PostMapping("/forgot-password")
+    @Operation(summary = "Forgot password", description = "Generate a new password and send it to the user's email. The user will be required to change it on next login.")
+    public ResponseEntity<ApiResponse<Void>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        authService.forgotPassword(request);
+        return ResponseEntity.ok(ApiResponse.success(
+                "If an account with that email exists, a new password has been sent.", null));
     }
 
     @PostMapping("/logout")

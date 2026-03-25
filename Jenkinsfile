@@ -8,7 +8,7 @@ pipeline {
     }
 
     environment {
-        APP_NAME          = 'smart-city-hub'
+        APP_NAME          = 'smart-city-hub-backend'
         DOCKER_REGISTRY   = 'docker.io'
         DOCKER_IMAGE      = "${DOCKER_REGISTRY}/${DOCKERHUB_USERNAME}/${APP_NAME}"
         DOCKER_TAG        = "${env.BUILD_NUMBER}"
