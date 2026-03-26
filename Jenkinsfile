@@ -90,9 +90,9 @@ pipeline {
         stage('Docker Build') {
             steps {
                 echo "Building Docker image: ${DOCKER_IMAGE}:${DOCKER_TAG}"
-                bat """
-                    docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} --no-cache .
-                """
+                script {
+                    dockerImage = docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}", "--no-cache .")
+                }
             }
         }
 

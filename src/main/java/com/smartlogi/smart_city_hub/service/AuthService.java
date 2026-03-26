@@ -201,7 +201,6 @@ public class AuthService {
         String newPassword = passwordGeneratorService.generateSecurePassword();
         String encodedPassword = passwordEncoder.encode(newPassword);
 
-        // Send email first — if it fails, the transaction rolls back and the password is NOT changed
         emailService.sendForgotPasswordEmail(user, newPassword);
 
         user.setPassword(encodedPassword);
