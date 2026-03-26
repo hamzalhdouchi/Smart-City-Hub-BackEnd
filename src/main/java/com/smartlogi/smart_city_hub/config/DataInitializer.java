@@ -104,7 +104,7 @@ public class DataInitializer implements CommandLineRunner {
                                         .firstName("Marie")
                                         .lastName("Supervisor")
                                         .nationalId("SUPER001")
-                                        .role(Role.ROLE_SUPERVISOR)
+                                        .role(Role.ROLE_AGENT)
                                         .status(UserStatus.ACTIVE)
                                         .mustChangePassword(false)
                                         .build();

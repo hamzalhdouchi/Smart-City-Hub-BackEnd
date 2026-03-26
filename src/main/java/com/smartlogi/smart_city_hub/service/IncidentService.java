@@ -227,6 +227,15 @@ public class IncidentService {
         return incidentMapper.toResponse(incident);
     }
 
+    @Transactional
+    public void deleteIncident(String id) {
+        Incident incident = incidentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Incident", "id", id));
+
+        incidentRepository.delete(incident);
+        log.info("Incident {} deleted by admin", id);
+    }
+
     private void validateResolutionPhoto(MultipartFile file) {
         if (file.getSize() > 10 * 1024 * 1024) {
             throw new BadRequestException("File size exceeds maximum allowed size of 10MB");

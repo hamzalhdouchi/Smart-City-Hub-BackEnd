@@ -101,6 +101,14 @@ public class IncidentController {
         return ResponseEntity.ok(ApiResponse.success("Resolution submitted, awaiting admin approval", response));
     }
 
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Delete incident", description = "Permanently delete an incident (admin only)")
+    public ResponseEntity<ApiResponse<Void>> deleteIncident(@PathVariable String id) {
+        incidentService.deleteIncident(id);
+        return ResponseEntity.ok(ApiResponse.success("Incident deleted", null));
+    }
+
     @PostMapping("/{id}/assign")
     @PreAuthorize("hasAnyRole('SUPERVISOR', 'ADMIN')")
     @Operation(summary = "Assign agent", description = "Assign an agent to handle the incident")
