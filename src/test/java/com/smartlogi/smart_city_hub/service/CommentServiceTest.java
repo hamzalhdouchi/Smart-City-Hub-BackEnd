@@ -88,7 +88,7 @@ class CommentServiceTest {
         mockCommentResponse.setContent("This is a test comment");
     }
 
-    // ========== getCommentsByIncident ==========
+    
 
     @Nested
     @DisplayName("getCommentsByIncident")
@@ -127,7 +127,7 @@ class CommentServiceTest {
         }
     }
 
-    // ========== addComment ==========
+    
 
     @Nested
     @DisplayName("addComment")
@@ -162,7 +162,7 @@ class CommentServiceTest {
         }
     }
 
-    // ========== updateComment ==========
+    
 
     @Nested
     @DisplayName("updateComment")
@@ -225,7 +225,7 @@ class CommentServiceTest {
         }
     }
 
-    // ========== deleteComment ==========
+    
 
     @Nested
     @DisplayName("deleteComment")

@@ -101,7 +101,7 @@ class IncidentPhotoServiceTest {
         when(validFile.getOriginalFilename()).thenReturn("photo.jpg");
     }
 
-    // ========== uploadPhotos ==========
+    
 
     @Nested
     @DisplayName("uploadPhotos")
@@ -146,7 +146,7 @@ class IncidentPhotoServiceTest {
         void should_ThrowIllegalArgument_When_FileTooLarge() {
             MultipartFile largeFile = mock(MultipartFile.class);
             when(largeFile.isEmpty()).thenReturn(false);
-            when(largeFile.getSize()).thenReturn(11 * 1024 * 1024L); // 11MB > 10MB limit
+            when(largeFile.getSize()).thenReturn(11 * 1024 * 1024L); 
 
             when(incidentRepository.findById("inc-1")).thenReturn(Optional.of(mockIncident));
             when(userService.getCurrentUser()).thenReturn(mockUser);
@@ -183,7 +183,7 @@ class IncidentPhotoServiceTest {
         }
     }
 
-    // ========== getPhotosByIncident ==========
+    
 
     @Nested
     @DisplayName("getPhotosByIncident")
@@ -226,7 +226,7 @@ class IncidentPhotoServiceTest {
         }
     }
 
-    // ========== getPhoto ==========
+    
 
     @Nested
     @DisplayName("getPhoto")
@@ -268,7 +268,7 @@ class IncidentPhotoServiceTest {
         }
     }
 
-    // ========== deletePhoto ==========
+    
 
     @Nested
     @DisplayName("deletePhoto")

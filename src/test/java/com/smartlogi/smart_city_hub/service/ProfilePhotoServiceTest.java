@@ -50,7 +50,7 @@ class ProfilePhotoServiceTest {
         when(validFile.getOriginalFilename()).thenReturn("profile.jpg");
     }
 
-    // ========== uploadProfilePhoto ==========
+    
 
     @Nested
     @DisplayName("uploadProfilePhoto")
@@ -87,7 +87,7 @@ class ProfilePhotoServiceTest {
         void should_ThrowIllegalArgument_When_FileTooLarge() {
             MultipartFile largeFile = mock(MultipartFile.class);
             when(largeFile.isEmpty()).thenReturn(false);
-            when(largeFile.getSize()).thenReturn(6 * 1024 * 1024L); // 6MB > 5MB limit
+            when(largeFile.getSize()).thenReturn(6 * 1024 * 1024L); 
             when(userService.getCurrentUser()).thenReturn(mockUser);
 
             IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
@@ -138,7 +138,7 @@ class ProfilePhotoServiceTest {
         }
     }
 
-    // ========== getCurrentProfilePhotoUrl ==========
+    
 
     @Nested
     @DisplayName("getCurrentProfilePhotoUrl")

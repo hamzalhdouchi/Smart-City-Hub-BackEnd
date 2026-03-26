@@ -80,7 +80,7 @@ class RatingServiceTest {
         mockRatingResponse.setStars(4);
     }
 
-    // ========== getRatingByIncident ==========
+    
 
     @Nested
     @DisplayName("getRatingByIncident")
@@ -107,7 +107,7 @@ class RatingServiceTest {
         }
     }
 
-    // ========== rateIncident ==========
+    
 
     @Nested
     @DisplayName("rateIncident")
@@ -200,7 +200,7 @@ class RatingServiceTest {
         }
     }
 
-    // ========== getAverageRating ==========
+    
 
     @Nested
     @DisplayName("getAverageRating")
@@ -225,7 +225,7 @@ class RatingServiceTest {
         }
     }
 
-    // ========== getAverageRatingByAgent ==========
+    
 
     @Nested
     @DisplayName("getAverageRatingByAgent")

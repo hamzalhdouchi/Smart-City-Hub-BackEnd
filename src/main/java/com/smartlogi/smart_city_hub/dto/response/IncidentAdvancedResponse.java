@@ -11,9 +11,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Advanced response DTO for incident (full details with related entities).
- */
+
 @Data
 @Builder
 @NoArgsConstructor

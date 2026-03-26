@@ -5,9 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Simple response DTO for category (minimal info).
- */
+
 @Data
 @Builder
 @NoArgsConstructor

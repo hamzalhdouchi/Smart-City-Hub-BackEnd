@@ -5,9 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Response DTO for pending registration confirmation.
- */
+
 @Data
 @Builder
 @NoArgsConstructor

@@ -24,7 +24,7 @@ class PasswordGeneratorServiceTest {
         passwordGeneratorService = new PasswordGeneratorService();
     }
 
-    // ========== generateSecurePassword ==========
+    
 
     @Nested
     @DisplayName("generateSecurePassword")
@@ -81,7 +81,7 @@ class PasswordGeneratorServiceTest {
             for (int i = 0; i < 20; i++) {
                 passwords.add(passwordGeneratorService.generateSecurePassword());
             }
-            // With 20 generated passwords, at least 2 should be different
+            
             assertTrue(passwords.size() > 1, "Passwords should not all be identical");
         }
 

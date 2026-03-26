@@ -7,9 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-/**
- * Advanced response DTO for photo (full details with uploader).
- */
+
 @Data
 @Builder
 @NoArgsConstructor

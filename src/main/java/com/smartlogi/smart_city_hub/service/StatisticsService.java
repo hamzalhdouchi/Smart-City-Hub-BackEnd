@@ -22,24 +22,24 @@ public class StatisticsService {
     private final RatingRepository ratingRepository;
     
     public StatisticsResponse getGlobalStatistics() {
-        // Get counts
+        
         long totalIncidents = incidentRepository.count();
         long totalUsers = userRepository.count();
         long totalAgents = userRepository.findByRole(Role.ROLE_AGENT).size();
         
-        // Get incidents by status
+        
         Map<String, Long> incidentsByStatus = new HashMap<>();
         incidentRepository.countByStatusGrouped().forEach(row -> {
             incidentsByStatus.put(row[0].toString(), (Long) row[1]);
         });
         
-        // Get incidents by category
+        
         Map<String, Long> incidentsByCategory = new HashMap<>();
         incidentRepository.countByCategoryGrouped().forEach(row -> {
             incidentsByCategory.put((String) row[0], (Long) row[1]);
         });
         
-        // Get average rating
+        
         Double averageRating = ratingRepository.getAverageRating();
         
         return StatisticsResponse.builder()
@@ -49,7 +49,7 @@ public class StatisticsService {
                 .incidentsByStatus(incidentsByStatus)
                 .incidentsByCategory(incidentsByCategory)
                 .averageRating(averageRating != null ? averageRating : 0.0)
-                .averageResolutionTimeHours(0.0) // TODO: Calculate this
+                .averageResolutionTimeHours(0.0) 
                 .build();
     }
     

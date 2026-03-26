@@ -7,9 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-/**
- * Advanced response DTO for comment (full details with author).
- */
+
 @Data
 @Builder
 @NoArgsConstructor

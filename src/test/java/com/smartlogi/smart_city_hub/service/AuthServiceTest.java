@@ -114,7 +114,7 @@ class AuthServiceTest {
         SecurityContextHolder.clearContext();
     }
 
-    // ========== REGISTER ==========
+    
 
     @Nested
     @DisplayName("register")
@@ -196,7 +196,7 @@ class AuthServiceTest {
         }
     }
 
-    // ========== LOGIN ==========
+    
 
     @Nested
     @DisplayName("login")
@@ -296,7 +296,7 @@ class AuthServiceTest {
         }
     }
 
-    // ========== APPROVE USER ==========
+    
 
     @Nested
     @DisplayName("approveUser")
@@ -342,7 +342,7 @@ class AuthServiceTest {
         }
     }
 
-    // ========== REJECT USER ==========
+    
 
     @Nested
     @DisplayName("rejectUser")
@@ -376,7 +376,7 @@ class AuthServiceTest {
         }
     }
 
-    // ========== CHANGE PASSWORD ==========
+    
 
     @Nested
     @DisplayName("changePassword")
@@ -456,7 +456,7 @@ class AuthServiceTest {
         }
     }
 
-    // ========== REFRESH TOKEN ==========
+    
 
     @Nested
     @DisplayName("refreshToken")
@@ -515,7 +515,7 @@ class AuthServiceTest {
         }
     }
 
-    // ========== LOGOUT ==========
+    
 
     @Nested
     @DisplayName("logout")

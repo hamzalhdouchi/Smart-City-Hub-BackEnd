@@ -10,9 +10,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Request DTO for creating a new user (Admin operation).
- */
+
 @Data
 @Builder
 @NoArgsConstructor

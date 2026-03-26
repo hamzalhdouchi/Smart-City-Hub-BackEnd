@@ -7,9 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-/**
- * Advanced response DTO for rating (full details with user).
- */
+
 @Data
 @Builder
 @NoArgsConstructor

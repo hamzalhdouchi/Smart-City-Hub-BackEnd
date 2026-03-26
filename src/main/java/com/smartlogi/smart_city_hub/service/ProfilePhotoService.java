@@ -27,7 +27,7 @@ public class ProfilePhotoService {
             "image/gif",
             "image/webp");
 
-    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB for profile photos
+    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; 
 
     @Transactional
     public String uploadProfilePhoto(MultipartFile file) {
@@ -35,12 +35,12 @@ public class ProfilePhotoService {
         validateFile(file);
 
         try {
-            // Upload to MinIO
+            
             String folder = "users/" + currentUser.getId() + "/profile";
             String objectName = minioService.uploadFile(file, folder);
             String fileUrl = minioService.getPresignedUrl(objectName);
 
-            // Save to DB
+            
             ProfilePhoto photo = ProfilePhoto.builder()
                     .user(currentUser)
                     .fileName(file.getOriginalFilename())

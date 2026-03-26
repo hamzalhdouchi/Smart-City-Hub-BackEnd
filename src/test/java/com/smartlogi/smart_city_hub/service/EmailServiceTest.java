@@ -45,7 +45,7 @@ class EmailServiceTest {
                 .build();
     }
 
-    // ========== sendAdminNotification ==========
+    
 
     @Nested
     @DisplayName("sendAdminNotification")
@@ -84,7 +84,7 @@ class EmailServiceTest {
         }
     }
 
-    // ========== sendActivationEmail ==========
+    
 
     @Nested
     @DisplayName("sendActivationEmail")
@@ -122,7 +122,7 @@ class EmailServiceTest {
         }
     }
 
-    // ========== sendPasswordChangeConfirmation ==========
+    
 
     @Nested
     @DisplayName("sendPasswordChangeConfirmation")

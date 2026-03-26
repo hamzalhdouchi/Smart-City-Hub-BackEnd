@@ -6,9 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Request DTO for updating a comment.
- */
+
 @Data
 @Builder
 @NoArgsConstructor

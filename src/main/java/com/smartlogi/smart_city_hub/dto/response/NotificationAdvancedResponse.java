@@ -8,9 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-/**
- * Advanced response DTO for notification (full details with incident).
- */
+
 @Data
 @Builder
 @NoArgsConstructor

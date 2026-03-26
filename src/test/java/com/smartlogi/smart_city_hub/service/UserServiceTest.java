@@ -66,7 +66,7 @@ class UserServiceTest {
         SecurityContextHolder.clearContext();
     }
 
-    // ========== getCurrentUser ==========
+    
 
     @Nested
     @DisplayName("getCurrentUser")
@@ -93,7 +93,7 @@ class UserServiceTest {
         }
     }
 
-    // ========== getCurrentUserProfile ==========
+    
 
     @Nested
     @DisplayName("getCurrentUserProfile")
@@ -112,7 +112,7 @@ class UserServiceTest {
         }
     }
 
-    // ========== getUserById ==========
+    
 
     @Nested
     @DisplayName("getUserById")
@@ -138,7 +138,7 @@ class UserServiceTest {
         }
     }
 
-    // ========== getAllUsers ==========
+    
 
     @Nested
     @DisplayName("getAllUsers")
@@ -167,7 +167,7 @@ class UserServiceTest {
         }
     }
 
-    // ========== getPendingUsers ==========
+    
 
     @Nested
     @DisplayName("getPendingUsers")
@@ -194,7 +194,7 @@ class UserServiceTest {
         }
     }
 
-    // ========== getAgents ==========
+    
 
     @Nested
     @DisplayName("getAgents")
@@ -233,7 +233,7 @@ class UserServiceTest {
         }
     }
 
-    // ========== updateProfile ==========
+    
 
     @Nested
     @DisplayName("updateProfile")
@@ -269,7 +269,7 @@ class UserServiceTest {
         }
     }
 
-    // ========== updateUserRole ==========
+    
 
     @Nested
     @DisplayName("updateUserRole")
@@ -296,7 +296,7 @@ class UserServiceTest {
         }
     }
 
-    // ========== deactivateUser ==========
+    
 
     @Nested
     @DisplayName("deactivateUser")
@@ -321,7 +321,7 @@ class UserServiceTest {
         }
     }
 
-    // ========== activateUser ==========
+    
 
     @Nested
     @DisplayName("activateUser")

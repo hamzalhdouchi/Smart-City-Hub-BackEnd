@@ -4,9 +4,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 
-/**
- * Service for generating secure random passwords.
- */
+
 @Service
 public class PasswordGeneratorService {
 

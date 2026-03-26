@@ -35,7 +35,7 @@ class StatisticsServiceTest {
         return list;
     }
 
-    // ========== getGlobalStatistics ==========
+    
 
     @Nested
     @DisplayName("getGlobalStatistics")
@@ -96,7 +96,7 @@ class StatisticsServiceTest {
         }
     }
 
-    // ========== getIncidentsByStatus ==========
+    
 
     @Nested
     @DisplayName("getIncidentsByStatus")
@@ -128,7 +128,7 @@ class StatisticsServiceTest {
         }
     }
 
-    // ========== getIncidentsByCategory ==========
+    
 
     @Nested
     @DisplayName("getIncidentsByCategory")

@@ -7,9 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Request DTO for changing password after first login.
- */
+
 @Data
 @Builder
 @NoArgsConstructor

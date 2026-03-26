@@ -7,9 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-/**
- * Advanced response DTO for category (full details with department).
- */
+
 @Data
 @Builder
 @NoArgsConstructor

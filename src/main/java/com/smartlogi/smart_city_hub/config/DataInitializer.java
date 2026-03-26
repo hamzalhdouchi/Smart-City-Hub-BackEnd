@@ -96,7 +96,7 @@ public class DataInitializer implements CommandLineRunner {
                         log.info("Created default admin user: admin@smartcityhub.com");
                 }
 
-                // Create supervisor user if not exists
+                
                 if (!userRepository.existsByEmail("supervisor@smartcityhub.com")) {
                         User supervisor = User.builder()
                                         .email("supervisor@smartcityhub.com")
@@ -112,7 +112,7 @@ public class DataInitializer implements CommandLineRunner {
                         log.info("Created default supervisor user: supervisor@smartcityhub.com");
                 }
 
-                // Create agent user if not exists
+                
                 if (!userRepository.existsByEmail("agent@smartcityhub.com")) {
                         User agent = User.builder()
                                         .email("agent@smartcityhub.com")
@@ -128,7 +128,7 @@ public class DataInitializer implements CommandLineRunner {
                         log.info("Created default agent user: agent@smartcityhub.com");
                 }
 
-                // Create test citizen if not exists
+                
                 if (!userRepository.existsByEmail("user@smartcityhub.com")) {
                         User user = User.builder()
                                         .email("user@smartcityhub.com")

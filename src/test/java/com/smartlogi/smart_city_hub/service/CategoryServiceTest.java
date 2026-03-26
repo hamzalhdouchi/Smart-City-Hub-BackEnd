@@ -50,7 +50,7 @@ class CategoryServiceTest {
                 .build();
     }
 
-    // ========== getAllCategories ==========
+    
 
     @Nested
     @DisplayName("getAllCategories")
@@ -83,7 +83,7 @@ class CategoryServiceTest {
         }
     }
 
-    // ========== getActiveCategories ==========
+    
 
     @Nested
     @DisplayName("getActiveCategories")
@@ -110,7 +110,7 @@ class CategoryServiceTest {
         }
     }
 
-    // ========== getCategoryById ==========
+    
 
     @Nested
     @DisplayName("getCategoryById")
@@ -136,7 +136,7 @@ class CategoryServiceTest {
         }
     }
 
-    // ========== createCategory ==========
+    
 
     @Nested
     @DisplayName("createCategory")
@@ -173,7 +173,7 @@ class CategoryServiceTest {
         }
     }
 
-    // ========== updateCategory ==========
+    
 
     @Nested
     @DisplayName("updateCategory")
@@ -243,7 +243,7 @@ class CategoryServiceTest {
         }
     }
 
-    // ========== deleteCategory ==========
+    
 
     @Nested
     @DisplayName("deleteCategory")
@@ -268,7 +268,7 @@ class CategoryServiceTest {
         }
     }
 
-    // ========== reactivateCategory ==========
+    
 
     @Nested
     @DisplayName("reactivateCategory")

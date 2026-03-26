@@ -47,19 +47,19 @@ public class SecurityConfig {
                 http
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                                 .csrf(AbstractHttpConfigurer::disable)
-                                .headers(headers -> headers.frameOptions(frame -> frame.disable())) // For H2 console
+                                .headers(headers -> headers.frameOptions(frame -> frame.disable())) 
                                 .exceptionHandling(exception -> exception
                                                 .authenticationEntryPoint(jwtAuthenticationEntryPoint))
                                 .sessionManagement(session -> session
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .authorizeHttpRequests(auth -> auth
-                                                // Public endpoints (no authentication required)
+                                                
                                                 .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                                                 .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
 
-                                                // All other requests require authentication
-                                                // Fine-grained role-based access is enforced by @PreAuthorize
-                                                // annotations
+                                                
+                                                
+                                                
                                                 .anyRequest().authenticated())
                                 .authenticationProvider(authenticationProvider)
                                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

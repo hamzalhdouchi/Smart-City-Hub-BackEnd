@@ -8,10 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Request DTO for user registration.
- * Password is not required - it will be generated upon admin approval.
- */
+
 @Data
 @Builder
 @NoArgsConstructor

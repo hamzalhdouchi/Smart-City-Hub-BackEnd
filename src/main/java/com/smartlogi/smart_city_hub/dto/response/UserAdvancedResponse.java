@@ -8,9 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-/**
- * Advanced response DTO for user (full details with statistics).
- */
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -28,7 +26,7 @@ public class UserAdvancedResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    // Statistics
+    
     private Integer incidentsReported;
     private Integer incidentsAssigned;
     private Integer incidentsResolved;

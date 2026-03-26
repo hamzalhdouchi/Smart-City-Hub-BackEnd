@@ -65,7 +65,7 @@ public class IncidentService {
         incident = incidentRepository.save(incident);
         log.info("Incident created: {} by user: {}", incident.getId(), reporter.getEmail());
 
-        // Upload photos if provided
+        
         if (photos != null && !photos.isEmpty()) {
             for (MultipartFile photo : photos) {
                 if (photo != null && !photo.isEmpty()) {

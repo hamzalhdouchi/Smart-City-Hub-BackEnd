@@ -109,7 +109,7 @@ public class IncidentPhotoService {
 
         User currentUser = userService.getCurrentUser();
 
-        // Only uploader or admin can delete
+        
         boolean isUploader = photo.getUploadedBy().getId().equals(currentUser.getId());
         boolean isAdmin = currentUser.getRole().name().equals("ROLE_ADMIN");
 

@@ -6,9 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Simple response DTO for user (minimal info for lists).
- */
+
 @Data
 @Builder
 @NoArgsConstructor

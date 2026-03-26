@@ -3,9 +3,7 @@ package com.smartlogi.smart_city_hub.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-/**
- * Exception thrown when attempting to create a duplicate resource.
- */
+
 @ResponseStatus(HttpStatus.CONFLICT)
 public class DuplicateResourceException extends RuntimeException {
 

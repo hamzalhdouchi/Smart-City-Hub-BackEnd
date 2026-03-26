@@ -8,9 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-/**
- * Simple response DTO for notification (minimal info).
- */
+
 @Data
 @Builder
 @NoArgsConstructor

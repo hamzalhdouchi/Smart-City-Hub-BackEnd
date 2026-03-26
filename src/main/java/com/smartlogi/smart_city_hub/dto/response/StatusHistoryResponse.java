@@ -8,9 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-/**
- * Response DTO for incident status history entry.
- */
+
 @Data
 @Builder
 @NoArgsConstructor

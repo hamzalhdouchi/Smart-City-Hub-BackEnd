@@ -7,9 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Request DTO for creating a new department.
- */
+
 @Data
 @Builder
 @NoArgsConstructor
