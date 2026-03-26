@@ -1,3 +1,5 @@
+def dockerImage
+
 pipeline {
 
     agent any
@@ -105,7 +107,7 @@ pipeline {
             steps {
                 echo "Pushing Docker image to registry..."
                 script {
-                    docker.withRegistry("https://${DOCKER_REGISTRY}", DOCKERHUB_CRED) {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CRED) {
                         dockerImage.push("${DOCKER_TAG}")
                         dockerImage.push('latest')
                     }
