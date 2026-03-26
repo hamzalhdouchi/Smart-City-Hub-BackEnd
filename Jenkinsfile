@@ -10,13 +10,11 @@ pipeline {
     environment {
         APP_NAME          = 'smart-city-hub-backend'
         DOCKER_REGISTRY   = 'docker.io'
-        DOCKER_IMAGE      = "${DOCKER_REGISTRY}/${DOCKERHUB_USERNAME}/${APP_NAME}"
-        DOCKER_TAG        = "${env.BUILD_NUMBER}"
-
         DOCKERHUB_CRED    = 'dockerhub-credentials'
         DEPLOY_SSH_CRED   = 'deploy-server-ssh'
         DEPLOY_SERVER_IP  = credentials('deploy-server-ip')
         ENV_FILE_CRED     = 'prod-env-file'
+        DOCKER_TAG        = "${env.BUILD_NUMBER}"
     }
 
     options {
@@ -89,9 +87,16 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                echo "Building Docker image: ${DOCKER_IMAGE}:${DOCKER_TAG}"
                 script {
-                    dockerImage = docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}", "--no-cache .")
+                    withCredentials([usernamePassword(
+                        credentialsId: DOCKERHUB_CRED,
+                        usernameVariable: 'DOCKERHUB_USERNAME',
+                        passwordVariable: 'DOCKERHUB_PASSWORD'
+                    )]) {
+                        env.DOCKER_IMAGE = "${DOCKER_REGISTRY}/${DOCKERHUB_USERNAME}/${APP_NAME}"
+                        echo "Building Docker image: ${env.DOCKER_IMAGE}:${DOCKER_TAG}"
+                        dockerImage = docker.build("${env.DOCKER_IMAGE}:${DOCKER_TAG}", "--no-cache .")
+                    }
                 }
             }
         }
@@ -108,8 +113,10 @@ pipeline {
             }
             post {
                 always {
-                    bat "docker rmi ${DOCKER_IMAGE}:${DOCKER_TAG} || true"
-                    bat "docker rmi ${DOCKER_IMAGE}:latest || true"
+                    script {
+                        bat "docker rmi ${env.DOCKER_IMAGE}:${DOCKER_TAG} 2>nul & exit /b 0"
+                        bat "docker rmi ${env.DOCKER_IMAGE}:latest 2>nul & exit /b 0"
+                    }
                 }
             }
         }
