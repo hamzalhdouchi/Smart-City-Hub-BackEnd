@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import com.smartlogi.smart_city_hub.entity.User;
+
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
@@ -37,7 +39,12 @@ public class JwtService {
     }
     
     public String generateAccessToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails, accessTokenValidity);
+        Map<String, Object> claims = new HashMap<>();
+        if (userDetails instanceof User user) {
+            claims.put("role", user.getRole().name());
+            claims.put("mustChangePassword", user.getMustChangePassword());
+        }
+        return generateToken(claims, userDetails, accessTokenValidity);
     }
     
     public String generateAccessToken(Map<String, Object> extraClaims, UserDetails userDetails) {

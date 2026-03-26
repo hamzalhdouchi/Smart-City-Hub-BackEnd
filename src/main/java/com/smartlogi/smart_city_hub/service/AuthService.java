@@ -193,19 +193,21 @@ public class AuthService {
 
     @Transactional
     public void forgotPassword(ForgotPasswordRequest request) {
-        userRepository.findByEmail(request.getEmail()).ifPresent(user -> {
-            if (user.getStatus() != UserStatus.ACTIVE) {
-                return;
-            }
+        User user = userRepository.findByEmail(request.getEmail()).orElse(null);
+        if (user == null || user.getStatus() != UserStatus.ACTIVE) {
+            return;
+        }
 
-            String newPassword = passwordGeneratorService.generateSecurePassword();
-            user.setPassword(passwordEncoder.encode(newPassword));
-            user.setMustChangePassword(true);
-            userRepository.save(user);
+        String newPassword = passwordGeneratorService.generateSecurePassword();
+        String encodedPassword = passwordEncoder.encode(newPassword);
 
-            log.info("Password reset for user: {}", user.getEmail());
-            emailService.sendForgotPasswordEmail(user, newPassword);
-        });
+        // Send email first — if it fails, the transaction rolls back and the password is NOT changed
+        emailService.sendForgotPasswordEmail(user, newPassword);
+
+        user.setPassword(encodedPassword);
+        user.setMustChangePassword(true);
+        userRepository.save(user);
+        log.info("Password reset for user: {}", user.getEmail());
     }
 
     @Transactional

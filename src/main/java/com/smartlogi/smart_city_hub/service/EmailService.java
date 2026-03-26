@@ -60,20 +60,15 @@ public class EmailService {
         }
     }
 
-    @Async
     public void sendForgotPasswordEmail(User user, String newPassword) {
-        try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(user.getEmail());
-            message.setSubject("Your New Password - Smart City Hub");
-            message.setText(buildForgotPasswordEmailBody(user, newPassword));
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(fromEmail);
+        message.setTo(user.getEmail());
+        message.setSubject("Your New Password - Smart City Hub");
+        message.setText(buildForgotPasswordEmailBody(user, newPassword));
 
-            mailSender.send(message);
-            log.info("New password email sent to: {}", user.getEmail());
-        } catch (Exception e) {
-            log.error("Failed to send new password email to {}: {}", user.getEmail(), e.getMessage());
-        }
+        mailSender.send(message);
+        log.info("New password email sent to: {}", user.getEmail());
     }
 
     @Async

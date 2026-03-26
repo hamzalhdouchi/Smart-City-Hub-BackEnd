@@ -6,6 +6,5 @@ package com.smartlogi.smart_city_hub.entity.enums;
 public enum Role {
     ROLE_USER,       // Citizen
     ROLE_AGENT,      // Municipal Agent
-    ROLE_SUPERVISOR, // Supervisor
     ROLE_ADMIN       // Administrator
 }
