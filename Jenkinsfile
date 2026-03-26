@@ -95,7 +95,7 @@ pipeline {
                         usernameVariable: 'DOCKERHUB_USERNAME',
                         passwordVariable: 'DOCKERHUB_PASSWORD'
                     )]) {
-                        env.DOCKER_IMAGE = "${DOCKER_REGISTRY}/${DOCKERHUB_USERNAME}/${APP_NAME}"
+                        env.DOCKER_IMAGE = "${DOCKERHUB_USERNAME}/${APP_NAME}"
                         echo "Building Docker image: ${env.DOCKER_IMAGE}:${DOCKER_TAG}"
                         dockerImage = docker.build("${env.DOCKER_IMAGE}:${DOCKER_TAG}", "--no-cache .")
                     }
@@ -118,6 +118,8 @@ pipeline {
                     script {
                         bat "docker rmi ${env.DOCKER_IMAGE}:${DOCKER_TAG} 2>nul & exit /b 0"
                         bat "docker rmi ${env.DOCKER_IMAGE}:latest 2>nul & exit /b 0"
+                        bat "docker rmi index.docker.io/${env.DOCKER_IMAGE}:${DOCKER_TAG} 2>nul & exit /b 0"
+                        bat "docker rmi index.docker.io/${env.DOCKER_IMAGE}:latest 2>nul & exit /b 0"
                     }
                 }
             }
@@ -157,7 +159,7 @@ pipeline {
                                 set -e
                                 cd /opt/smart-city-hub
 
-                                export DOCKER_IMAGE=''' + DOCKER_IMAGE + '''
+                                export DOCKER_IMAGE=docker.io/''' + env.DOCKER_IMAGE + '''
                                 export DOCKER_TAG=''' + DOCKER_TAG + '''
 
                                 docker-compose -f docker-compose.prod.yml pull app
